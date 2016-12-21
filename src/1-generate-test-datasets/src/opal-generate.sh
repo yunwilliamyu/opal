@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PATH=/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/bin:/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/include:$PATH
-export LD_LIBRARY_PATH=/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
+export PATH=../../../util/ext/gdl-1.1/GDL/bin:../../../util/ext/gdl-1.1/GDL/include:$PATH
+export LD_LIBRARY_PATH=../../../util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
 
 OPTIND=1 # reset for getopts
 
