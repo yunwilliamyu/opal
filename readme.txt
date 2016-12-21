@@ -1,6 +1,5 @@
 0. Requirments
 	Vowpal Wabbit (already installed in /mnt/work/jpeng/Yunan/Metagenomics/code/vowpal_wabbit)
-	Gnu Data Language (e.g. on Ubuntu "sudo apt-get install gnudatalanguage")
 
 1. Directory
 data/
