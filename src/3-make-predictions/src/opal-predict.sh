@@ -1,8 +1,5 @@
 export PATH=../../../util/ext/gdl-1.1/GDL/bin:../../../util/ext/gdl-1.1/GDL/include:$PATH
 export LD_LIBRARY_PATH=../../../util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
-#export PATH=/mnt/work/jpeng/Yunan/Metagenomics/code/vowpal_wabbit/vowpalwabbit:$PATH
-#export PATH=/mnt/work/jpeng/Yunan/Metagenomics/code/boost_1_60_0/BOOST/include:$PATH
-#export LD_LIBRARY_PATH=/mnt/work/jpeng/Yunan/Metagenomics/code/boost_1_60_0/BOOST/lib:$LD_LIBRARY_PATH
 
 # specify path to fasta2skm
 fasta2skm=../../../util/fasta2skm
