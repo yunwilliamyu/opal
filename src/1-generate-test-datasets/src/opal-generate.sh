@@ -7,7 +7,7 @@ OPTIND=1 # reset for getopts
 
 # specify path to drawfrag
 drawfrag=../../../util/drawfrag
-DB="example"
+DB="A1"
 
 # specify fragments parameters (length and cover ~ number)
 L=200
