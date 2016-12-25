@@ -1,5 +1,5 @@
-export PATH=/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/bin:/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/include:$PATH
-export LD_LIBRARY_PATH=/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
+export PATH=../ext/gdl-1.1/GDL/bin:../ext/gdl-1.1/GDL/include:$PATH
+export LD_LIBRARY_PATH=../ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
 
 # draw fragments of size 20 covering each sequence 0.8 times
 ../drawfrag -i input/seq.fasta -t input/seq.taxid -l 8 -c 0.1 -o output/frags.fasta -g output/frags.gi2taxid 
