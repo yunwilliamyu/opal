@@ -37,8 +37,8 @@ print "micro = %.2f\nmacro = %.2f\nmedian = %.2f"\
         %(micro*100, macro*100, median*100)
        
 
-print "prec(macro)=%.6f"%(precision_score(ref, pred, average='macro')*100)
-print "prec(micro)=%.6f"%(precision_score(ref, pred, average='micro')*100)
-print "recall(macro)=%.6f"%(recall_score(ref, pred, average='macro')*100)
-print "recall(micro)=%.6f"%(recall_score(ref, pred, average='micro')*100)
+#print "prec(macro)=%.6f"%(precision_score(ref, pred, average='macro')*100)
+#print "prec(micro)=%.6f"%(precision_score(ref, pred, average='micro')*100)
+#print "recall(macro)=%.6f"%(recall_score(ref, pred, average='macro')*100)
+#print "recall(micro)=%.6f"%(recall_score(ref, pred, average='micro')*100)
 
