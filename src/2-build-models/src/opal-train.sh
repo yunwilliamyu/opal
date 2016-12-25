@@ -1,12 +1,9 @@
 #!/bin/bash
 
-export PATH=/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/bin:/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/include:$PATH
-export LD_LIBRARY_PATH=/mnt/work/jpeng/Yunan/Metagenomics/Opal/util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
-export PATH=/mnt/work/jpeng/Yunan/Metagenomics/code/vowpal_wabbit/vowpalwabbit:$PATH
-export PATH=/mnt/work/jpeng/Yunan/Metagenomics/code/boost_1_60_0/BOOST/include:$PATH
-export LD_LIBRARY_PATH=/mnt/work/jpeng/Yunan/Metagenomics/code/boost_1_60_0/BOOST/lib:$LD_LIBRARY_PATH
+export PATH=../../../util/ext/gdl-1.1/GDL/bin:../../../util/ext/gdl-1.1/GDL/include:$PATH
+export LD_LIBRARY_PATH=../../../util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
 
-DB="example"
+DB="A1"
 
 # specify path to drawfrag and fasta2skm (fasta to spaced kmer)
 drawfrag=../../../util/drawfrag
@@ -18,10 +15,10 @@ COVERAGE=0.1
 L=200
 
 # specify kmer size #
-K=128
+K=64
 
 # spaced kmer weight, number of hash functions
-row_weight=16
+row_weight=4
 numHash=2
 
 # specify generic VW options #
@@ -225,14 +222,14 @@ do
 	# learn model
 	if [[ $i -eq 1 ]]; then
 		# first iteration : no previous model to build upon 		
-		$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -c --passes $NPASSES -f ${modelPrefix}_batch-${i}.model.sr --oaa $NLABELS -b $BITS --l1 $LAMBDA1 --l2 $LAMBDA2 --save_resume --progress 100000
+		$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -c --passes $NPASSES -f ${modelPrefix}_batch-${i}.model.sr --oaa $NLABELS -b $BITS --l1 $LAMBDA1 --l2 $LAMBDA2 --save_resume
 	else
 		# last iteration : build final model (no save-resume mechanism)
 		if [[ $i -eq ${NBATCHES} ]]; then
-			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -f ${modelPrefix}_batch-${i}.model -i ${modelPrefix}_batch-$(($i - 1)).model.sr --progress 100000
+			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -f ${modelPrefix}_batch-${i}.model -i ${modelPrefix}_batch-$(($i - 1)).model.sr
 		else
 			# futher iterations : save-resume mechanism
-			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -f ${modelPrefix}_batch-${i}.model.sr -i ${modelPrefix}_batch-$(($i - 1)).model.sr --save_resume --progress 100000
+			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -f ${modelPrefix}_batch-${i}.model.sr -i ${modelPrefix}_batch-$(($i - 1)).model.sr --save_resume
 		fi
 			
 
