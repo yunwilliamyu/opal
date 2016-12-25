@@ -87,7 +87,3 @@ Acknowledgement
 	This implementation of Opal is adapted from the source code of the following paper:
 	K. Vervier, P. Mahe, M. Tournoud, J.-B. Veyrieras, and J.-P. Vert. Large-scale Machine Learning for Metagenomics Sequence Classification , Technical report HAL-01151453, May, 2015.
 
-
-
-
-

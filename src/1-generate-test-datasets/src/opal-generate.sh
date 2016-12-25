@@ -50,7 +50,7 @@ taxids=../../../data/$DB/test/$DB.test.taxid
 
 # set seed (for reproducibility)
 SEED=42
-OUTPUTDIR=../output_$DB
+OUTPUTDIR=../output/$DB
 mkdir -p $OUTPUTDIR
 
 # draw fragments

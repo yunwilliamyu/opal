@@ -89,7 +89,7 @@ dico=$modelDir/vw-dico.txt
 
 # make predictions fragments 
 # generate test fragments from fasta
-fasta=../../1-generate-test-datasets/output_${DB}/test.fragments.fasta
+fasta=../../1-generate-test-datasets/output/${DB}/test.fragments.fasta
 # use existing test fragments
 #fasta=../../../data/$DB/test/${DB}.test.fasta
 prefix=../output/test.fragments.$DB-db
