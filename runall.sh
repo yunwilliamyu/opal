@@ -2,11 +2,11 @@
 # This runs the full pipeline of simulating fragments, training, and then prediction.
 
 DB=A1
-L=200
+L=100
 COVERAGE=0.2
-K=64
+K=32
 NUMHASH=2
-NPASSES=100
+NPASSES=10
 ROWWEIGHT=16
 NBATCHES=2
 
@@ -181,7 +181,7 @@ done
 
 echo ================
 echo Invocation
-echo $0 S@
+echo $0 $@
 echo ================
 
 echo ================
@@ -199,7 +199,6 @@ date
 echo "bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES 2>&1"
 echo ================
 cd src/2-build-models/src
-rm .cache
 bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES 2>&1
 cd ../../..
 
