@@ -1,5 +1,6 @@
 0. Requirments
-	Vowpal Wabbit (already installed in /mnt/work/jpeng/Yunan/Metagenomics/code/vowpal_wabbit)
+	Vowpal Wabbit >= 7.3.0
+	scikit-learn
 
 1. Directory
 data/
