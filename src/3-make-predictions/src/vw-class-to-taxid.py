@@ -12,5 +12,5 @@ with open(dicodir, "r") as fin:
 predout = open(outputdir, "w")
 with open(inputdir, "r") as fin:
 	for line in fin:
-		predout.write("%s\n"%(dico[line.strip()]))
+		predout.write("%s\n"%(dico[str(int(float(line.strip())))]))
 predout.close()
