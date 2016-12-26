@@ -2,12 +2,12 @@
 # This runs the full pipeline of simulating fragments, training, and then prediction.
 
 DB=A1
-L=100
-COVERAGE=0.2
-K=32
+L=64
+COVERAGE=1
+K=16
 NUMHASH=2
-NPASSES=10
-ROWWEIGHT=16
+NPASSES=2
+ROWWEIGHT=4
 NBATCHES=2
 
 #DB=subspecies
