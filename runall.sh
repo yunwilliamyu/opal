@@ -2,13 +2,13 @@
 # This runs the full pipeline of simulating fragments, training, and then prediction.
 
 DB=A1
-L=64
-COVERAGE=1
-K=16
+L=32
+COVERAGE=0.1
+K=4
 NUMHASH=2
-NPASSES=2
-ROWWEIGHT=2
-NBATCHES=2
+NPASSES=1
+ROWWEIGHT=1
+NBATCHES=1
 
 #DB=subspecies
 #L=200
@@ -178,6 +178,8 @@ while :; do
     esac
     shift
 done
+
+exec > >(tee -i output/${DB}/`date +%s`.log)
 
 echo ================
 echo Invocation

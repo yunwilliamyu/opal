@@ -104,12 +104,13 @@ dico=$modelDir/vw-dico.txt
 # make predictions fragments 
 
 if [ $use_existing -eq 0 ]; then
-    # generate test fragments from fasta
+    # use generated test fragments from fasta
     fasta=$ROOT/output/$DB/1-generate-test-datasets/test.fragments.fasta
 else
     # use existing test fragments
     fasta=$ROOT/data/$DB/test/${DB}.test.fasta
 fi
+mkdir -p $ROOT/output/$DB/3-make-predictions
 prefix=$ROOT/output/$DB/3-make-predictions/test.fragments.$DB-db
 
 # get vw predictions

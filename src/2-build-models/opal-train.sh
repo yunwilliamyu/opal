@@ -228,14 +228,14 @@ do
 	# learn model
 	if [[ $i -eq 1 ]]; then
 		# first iteration : no previous model to build upon 		
-		$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -c --cache_file ${modelPrefix}_batch.cache --passes $NPASSES -f ${modelPrefix}_batch-${i}.model.sr --oaa $NLABELS -b $BITS --l1 $LAMBDA1 --l2 $LAMBDA2 --save_resume
+		$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED --cache_file ${modelPrefix}_batch.cache --passes $NPASSES -f ${modelPrefix}_batch-${i}.model.sr --oaa $NLABELS -b $BITS --l1 $LAMBDA1 --l2 $LAMBDA2 --save_resume
 	else
 		# last iteration : build final model (no save-resume mechanism)
 		if [[ $i -eq ${NBATCHES} ]]; then
-			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -c --cache_file ${modelPrefix}_batch.cache -f ${modelPrefix}_batch-${i}.model -i ${modelPrefix}_batch-$(($i - 1)).model.sr
+			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED --cache_file ${modelPrefix}_batch.cache -f ${modelPrefix}_batch-${i}.model -i ${modelPrefix}_batch-$(($i - 1)).model.sr
 		else
 			# futher iterations : save-resume mechanism
-			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED -c --cache_file ${modelPrefix}_batch.cache -f ${modelPrefix}_batch-${i}.model.sr -i ${modelPrefix}_batch-$(($i - 1)).model.sr --save_resume
+			$fasta2skm -i $fastaBatch -t $taxidBatch -k $K -d $dico -p $outputDir/patterns.txt | awk 'BEGIN{srand($SEED);} {printf "%06d %s\n", rand()*1000000, $0;}' | sort -n -T $TMPDIR | cut -c8- | vw --random_seed $SEED --cache_file ${modelPrefix}_batch.cache -f ${modelPrefix}_batch-${i}.model.sr -i ${modelPrefix}_batch-$(($i - 1)).model.sr --save_resume
 		fi
 			
 
