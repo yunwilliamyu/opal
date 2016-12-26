@@ -189,27 +189,27 @@ echo Generating Test Datasets
 date
 echo "bash opal-generate.sh -d $DB -l $L -c $COVERAGE 2>&1"
 echo ================
-cd src/1-generate-test-datasets/src
+cd src/1-generate-test-datasets
 bash opal-generate.sh -d $DB -l $L -c $COVERAGE 2>&1
-cd ../../..
+cd ../..
 
 echo ================
 echo Building Models
 date
 echo "bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES 2>&1"
 echo ================
-cd src/2-build-models/src
+cd src/2-build-models
 bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES 2>&1
-cd ../../..
+cd ../..
 
 echo ================
 echo Making Predictions
 date
 echo "bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K 2>&1"
 echo ================
-cd src/3-make-predictions/src
+cd src/3-make-predictions
 bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K 2>&1
-cd ../../..
+cd ../..
 
 echo ================
 echo Fine.
