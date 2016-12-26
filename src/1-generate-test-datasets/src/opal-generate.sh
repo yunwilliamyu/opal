@@ -1,17 +1,25 @@
 #!/bin/bash
 
-export PATH=../../../util/ext/gdl-1.1/GDL/bin:../../../util/ext/gdl-1.1/GDL/include:$PATH
-export LD_LIBRARY_PATH=../../../util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
+if hash readlink
+then
+    ROOT=`readlink -f ../../..`
+else
+    ROOT=../../..
+fi
+
+
+export PATH=$ROOT/util/ext/gdl-1.1/GDL/bin:$ROOT/util/ext/gdl-1.1/GDL/include:$PATH
+export LD_LIBRARY_PATH=$ROOT/util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
 
 OPTIND=1 # reset for getopts
 
 # specify path to drawfrag
-drawfrag=../../../util/drawfrag
+drawfrag=$ROOT/util/drawfrag
 DB="A1"
 
 # specify fragments parameters (length and cover ~ number)
-L=200
-COVERAGE=0.05
+L=64
+COVERAGE=1
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
@@ -44,13 +52,13 @@ echo Database=$DB
 echo length=$L
 echo coverage=$COVERAGE
 
-# specify input  data
-fasta=../../../data/$DB/test/$DB.test.fasta
-taxids=../../../data/$DB/test/$DB.test.taxid
+# specify input data
+fasta=$ROOT/data/$DB/test/$DB.test.fasta
+taxids=$ROOT/data/$DB/test/$DB.test.taxid
 
 # set seed (for reproducibility)
 SEED=42
-OUTPUTDIR=../output/$DB
+OUTPUTDIR=$ROOT/output/$DB/1-generate-test-datasets
 mkdir -p $OUTPUTDIR
 
 # draw fragments

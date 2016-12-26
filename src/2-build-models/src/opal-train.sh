@@ -1,13 +1,20 @@
 #!/bin/bash
 
-export PATH=../../../util/ext/gdl-1.1/GDL/bin:../../../util/ext/gdl-1.1/GDL/include:$PATH
-export LD_LIBRARY_PATH=../../../util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
+if hash readlink
+then
+    ROOT=`readlink -f ../../..`
+else
+    ROOT=../../..
+fi
+
+export PATH=$ROOT/util/ext/gdl-1.1/GDL/bin:$ROOT/util/ext/gdl-1.1/GDL/include:$PATH
+export LD_LIBRARY_PATH=$ROOT/util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
 
 DB="A1"
 
 # specify path to drawfrag and fasta2skm (fasta to spaced kmer)
-drawfrag=../../../util/drawfrag
-fasta2skm=../../../util/fasta2skm
+drawfrag=$ROOT/util/drawfrag
+fasta2skm=$ROOT/util/fasta2skm
 
 # specify fragments parameters #
 NBATCHES=2
@@ -180,15 +187,15 @@ while :; do
 done
 
 # specify input data #
-fasta=../../../data/$DB/train/$DB.train.fasta
-taxids=../../../data/$DB/train/$DB.train.taxid
+fasta=$ROOT/data/$DB/train/$DB.train.fasta
+taxids=$ROOT/data/$DB/train/$DB.train.taxid
 # extract number of labels
 NLABELS=$(sort -u $taxids | wc -l)
 
 
 
 # specify output data #
-outputDir=../output/train_$DB-db
+outputDir=$ROOT/output/$DB/2-build-models/train_$DB-db
 mkdir -p $outputDir
 # define output "dictionary" : taxid <--> wv classes
 dico=$outputDir/vw-dico.txt
@@ -197,11 +204,11 @@ modelPrefix=$outputDir/vw-model
 
 
 # specify temporary directory (to shuffle input files) #
-TMPDIR=../TMP
+TMPDIR=$ROOT/output/$DB/TMP
 mkdir -p $TMPDIR
 
 # generate LDPC spaced pattern
-python ../../../util/ldpc.py -k $K -t $row_weight -m $numHash -d $outputDir/patterns.txt
+python $ROOT/util/ldpc.py -k $K -t $row_weight -m $numHash -d $outputDir/patterns.txt
 
 
 # loop on batches #

@@ -1,8 +1,17 @@
-export PATH=../../../util/ext/gdl-1.1/GDL/bin:../../../util/ext/gdl-1.1/GDL/include:$PATH
-export LD_LIBRARY_PATH=../../../util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
+#!/bin/bash
+
+if hash readlink
+then
+    ROOT=`readlink -f ../../..`
+else
+    ROOT=../../..
+fi
+
+export PATH=$ROOT/util/ext/gdl-1.1/GDL/bin:$ROOT/util/ext/gdl-1.1/GDL/include:$PATH
+export LD_LIBRARY_PATH=$ROOT/util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
 
 # specify path to fasta2skm
-fasta2skm=../../../util/fasta2skm
+fasta2skm=$ROOT/util/fasta2skm
 
 # specify reference database
 DB=A1
@@ -83,16 +92,16 @@ while :; do
     shift
 done
 
-modelDir=../../2-build-models/output/train_$DB-db
+modelDir=$ROOT/output/$DB/2-build-models/train_$DB-db
 model=$modelDir/vw-model_batch-${NBATCHES}.model
 dico=$modelDir/vw-dico.txt
 
 # make predictions fragments 
 # generate test fragments from fasta
-fasta=../../1-generate-test-datasets/output/${DB}/test.fragments.fasta
+fasta=$ROOT/output/$DB/1-generate-test-datasets/test.fragments.fasta
 # use existing test fragments
-#fasta=../../../data/$DB/test/${DB}.test.fasta
-prefix=../output/test.fragments.$DB-db
+#fasta=$ROOT/data/$DB/test/${DB}.test.fasta
+prefix=$ROOT/output/$DB/3-make-predictions/test.fragments.$DB-db
 
 # get vw predictions
 $fasta2skm -i $fasta -k $K  -p $modelDir/patterns.txt | vw -t -i $model -p $prefix.preds.vw
