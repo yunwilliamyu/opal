@@ -12,9 +12,10 @@ else:
 	args = parser.parse_args()
 	DB = args.d[0]
 
-predfile = "../output/test.fragments."+DB+"-db.preds.taxid"
+root = "../.."
+predfile = root + "/output/" + DB + "/3-make-predictions/test.fragments."+DB+"-db.preds.taxid"
 # tax id of generated test fragments
-reffile = "../../1-generate-test-datasets/output_"+DB+"/test.fragments.taxid"
+reffile = root + "/output/" + DB + "/1-generate-test-datasets/output/test.fragments.taxid"
 #reffile = "../../1-generate-test-datasets/output/test.fragments.taxid"
 # tax id of existing test fragmetns
 #reffile = "../../../data/"+DB+"/test/"+DB+".test.taxid"
