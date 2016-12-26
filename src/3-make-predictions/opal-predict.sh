@@ -1,10 +1,9 @@
 #!/bin/bash
 
+ROOT=../..
 if hash readlink
 then
-    ROOT=`readlink -f ../..`
-else
-    ROOT=../..
+    ROOT=`readlink -f $ROOT`
 fi
 
 export PATH=$ROOT/util/ext/gdl-1.1/GDL/bin:$ROOT/util/ext/gdl-1.1/GDL/include:$PATH
