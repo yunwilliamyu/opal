@@ -2,9 +2,9 @@
 
 if hash readlink
 then
-    ROOT=`readlink -f ../../..`
+    ROOT=`readlink -f ../..`
 else
-    ROOT=../../..
+    ROOT=../..
 fi
 
 
