@@ -80,8 +80,7 @@ util/
     3) make prediction
         $ cd src/3-make-predictions
         $ sh opal-predict.sh
-        if existing test fragments are provided, the value of "fasta" should 
-        be manually set in opal-predict.sh
+        if existing test fragments are provided, they should be located in the standard location under data/example/test/ and opal-predict.sh should be called with option --use-existing
 
 Contact
     Yunan Luo, luoyunan@gmail.com

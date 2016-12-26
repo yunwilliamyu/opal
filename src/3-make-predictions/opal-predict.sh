@@ -24,11 +24,17 @@ echo This script assumes that it is run from the directory in which it lives.
 echo Usage: $0 -d [database] --nbatches [NBATCHES] --kmer [KMER_LENGTH] 
 }
 
+# Don't use unprocessed test fragments unless otherwise specified
+use_existing=0
+
 while :; do
     case $1 in
         -h|-\?|--help)
             show_help
             exit 0
+            ;;
+        --use-unprocessed-test-fragments)
+            use_existing=1
             ;;
         -d|--database)
             if [ -n "$2" ]; then
@@ -96,10 +102,14 @@ model=$modelDir/vw-model_batch-${NBATCHES}.model
 dico=$modelDir/vw-dico.txt
 
 # make predictions fragments 
-# generate test fragments from fasta
-fasta=$ROOT/output/$DB/1-generate-test-datasets/test.fragments.fasta
-# use existing test fragments
-#fasta=$ROOT/data/$DB/test/${DB}.test.fasta
+
+if [ $use_existing -eq 0 ]; then
+    # generate test fragments from fasta
+    fasta=$ROOT/output/$DB/1-generate-test-datasets/test.fragments.fasta
+else
+    # use existing test fragments
+    fasta=$ROOT/data/$DB/test/${DB}.test.fasta
+fi
 prefix=$ROOT/output/$DB/3-make-predictions/test.fragments.$DB-db
 
 # get vw predictions
