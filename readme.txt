@@ -1,5 +1,5 @@
 0. Requirments
-    Vowpal Wabbit >= 7.3.0
+    Vowpal Wabbit >= 8.3.0
     scikit-learn
 
 1. Directory structure
