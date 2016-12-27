@@ -218,14 +218,13 @@ date
 echo ================
 set -x
 cd src/2-build-models
-bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES -o $OUTDIR/2-build-models 2>&1
+bash opal-train.sh -i $DATADIR -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES -o $OUTDIR/2-build-models 2>&1
 cd ../..
 set +x
 
 echo ================
 echo Making Predictions
 date
-echo "bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K 2>&1"
 echo ================
 if [ "$fragment_test_set" = true ]; then
     test_dir=$OUTDIR/1-generate-test-datasets
@@ -234,7 +233,7 @@ else
 fi
 set -x
 cd src/3-make-predictions
-bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K -m $OUTDIR/2-build-models -t $test_dir -o $OUTDIR/3-make-predictions 2>&1
+bash opal-predict.sh --nbatches $NBATCHES --kmer $K -m $OUTDIR/2-build-models -t $test_dir -o $OUTDIR/3-make-predictions 2>&1
 cd ../..
 set +x
 

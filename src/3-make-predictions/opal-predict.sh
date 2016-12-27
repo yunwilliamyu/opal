@@ -139,27 +139,17 @@ while :; do
     shift
 done
 
-if [[ -z $modelDir ]]; then
-    modelDir=$ROOT/output/$DB/2-build-models
-fi
 model=$modelDir/vw-model_batch-${NBATCHES}.model
 dico=$modelDir/vw-dico.txt
 
 # make predictions fragments 
 
-if [[ -z $testDir ]]; then
-    testDir=$ROOT/output/$DB/1-generate-test-datasets
-fi
-
 testfasta_files="$testDir/*.fasta"
 testfasta_array=( $testfasta_files )
 fasta="${testfasta_array[0]}"
 
-if [[ -z $outputDir ]]; then
-    outputDir=$ROOT/output/$DB/3-make-predictions
-fi
 mkdir -p $outputDir
-prefix=$outputDir/test.fragments.$DB-db
+prefix=$outputDir/test.fragments-db
 
 # get vw predictions
 $fasta2skm -i $fasta -k $K  -p $modelDir/patterns.txt | vw -t -i $model -p $prefix.preds.vw

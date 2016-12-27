@@ -9,8 +9,6 @@ fi
 export PATH=$ROOT/util/ext/gdl-1.1/GDL/bin:$ROOT/util/ext/gdl-1.1/GDL/include:$PATH
 export LD_LIBRARY_PATH=$ROOT/util/ext/gdl-1.1/GDL/lib:$LD_LIBRARY_PATH
 
-DB="A1"
-
 # specify path to drawfrag and fasta2skm (fasta to spaced kmer)
 drawfrag=$ROOT/util/drawfrag
 fasta2skm=$ROOT/util/fasta2skm
@@ -35,7 +33,7 @@ BITS=31
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
-echo Usage: $0 -d [database] -l [fragment-length] -c [coverage] --nbatches [NBATCHES] --kmer [KMER_LENGTH] --row_weight [row_weight] --numHash [numHash] --npasses [NPASSES] -o [OUTPUT_DIR]
+echo Usage: $0 -i [data_dir] -l [fragment-length] -c [coverage] --nbatches [NBATCHES] --kmer [KMER_LENGTH] --row_weight [row_weight] --numHash [numHash] --npasses [NPASSES] -o [OUTPUT_DIR]
 }
 
 while :; do
@@ -44,21 +42,14 @@ while :; do
             show_help
             exit 0
             ;;
-        -d|--database)
+        -i)
             if [ -n "$2" ]; then
-                DB=$2
+                DATADIR=$2
                 shift
             else
-                printf 'ERROR: "--database" requires a non-empty option argument.\n' >&2
+                printf 'ERROR: "-i" requires a non-empty option argument.\n' >&2
                 exit 1
             fi
-            ;;
-        --database=?*)
-            DB=${1#*=}
-            ;;
-        --database=)
-            printf 'ERROR: "--database" requires a non-empty option argument.\n' >&2
-            exit 1
             ;;
         --nbatches)
             if [ -n "$2" ]; then
@@ -202,17 +193,16 @@ while :; do
 done
 
 # specify input data #
-fasta=$ROOT/data/$DB/train/$DB.train.fasta
-taxids=$ROOT/data/$DB/train/$DB.train.taxid
+testfasta_files="$DATADIR/train/*.fasta"
+testfasta_array=( $testfasta_files )
+fasta="${testfasta_array[0]}"
+testid_files="$DATADIR/train/*.taxid"
+testid_array=( $testid_files )
+taxids="${testid_array[0]}"
 # extract number of labels
 NLABELS=$(sort -u $taxids | wc -l)
 
-
-
 # specify output data #
-if [[ -z $outputDir ]]; then
-    outputDir=$ROOT/output/$DB/2-build-models
-fi
 mkdir -p $outputDir
 # define output "dictionary" : taxid <--> wv classes
 dico=$outputDir/vw-dico.txt
@@ -221,7 +211,7 @@ modelPrefix=$outputDir/vw-model
 
 
 # specify temporary directory (to shuffle input files) #
-TMPDIR=$ROOT/output/$DB/TMP
+TMPDIR=$outputDir/TMP
 mkdir -p $TMPDIR
 
 # generate LDPC spaced pattern
