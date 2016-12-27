@@ -140,7 +140,7 @@ while :; do
 done
 
 if [[ -z $modelDir ]]; then
-    modelDir=$ROOT/output/$DB/2-build-models/train_$DB-db
+    modelDir=$ROOT/output/$DB/2-build-models
 fi
 model=$modelDir/vw-model_batch-${NBATCHES}.model
 dico=$modelDir/vw-dico.txt
@@ -151,7 +151,9 @@ if [[ -z $testDir ]]; then
     testDir=$ROOT/output/$DB/1-generate-test-datasets
 fi
 
-fasta=$testDir/test.fragments.fasta
+testfasta_files="$testDir/*.fasta"
+testfasta_array=( $testfasta_files )
+fasta="${testfasta_array[0]}"
 
 if [[ -z $outputDir ]]; then
     outputDir=$ROOT/output/$DB/3-make-predictions
@@ -164,6 +166,8 @@ $fasta2skm -i $fasta -k $K  -p $modelDir/patterns.txt | vw -t -i $model -p $pref
 # convert vw class to taxid
 python vw-class-to-taxid.py ${prefix}.preds.vw $dico ${prefix}.preds.taxid
 #python eval.py -d $DB
-python eval.py -p ${prefix}.preds.taxid -r $testDir/test.fragments.taxid
+testid_files="$testDir/*.taxid"
+testid_array=( $testid_files )
+python eval.py -p ${prefix}.preds.taxid -r "${testid_array[0]}"
 
 

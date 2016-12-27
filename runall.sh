@@ -5,10 +5,11 @@ DB=A1
 L=16
 COVERAGE=1
 K=8
-NUMHASH=2
+NUMHASH=1
 NPASSES=1
 ROWWEIGHT=1
 NBATCHES=1
+fragment_test_set=true
 
 #DB=subspecies
 #L=200
@@ -27,7 +28,7 @@ fi
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
-echo Usage: $0 -d [database] -l [fragment-length] -c [coverage] --nbatches [NBATCHES] --kmer [KMER_LENGTH] --row_weight [row_weight] --numHash [numHash] --npasses [NPASSES]
+echo Usage: $0 -d [database] -l [fragment-length] -c [coverage] --nbatches [NBATCHES] --kmer [KMER_LENGTH] --row_weight [row_weight] --numHash [numHash] --npasses [NPASSES] [--fragment-test-set]
 
 }
 
@@ -35,6 +36,10 @@ while :; do
     case $1 in
         -h|-\?|--help)
             show_help
+            exit 0
+            ;;
+        --fragment-test-set)
+            fragment_test_set=true
             exit 0
             ;;
         -d|--database)
@@ -210,7 +215,7 @@ date
 echo ================
 set -x
 cd src/2-build-models
-bash -x opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES -o $ROOT/output/$DB/$RUNID/2-build-models/train_$DB-db 2>&1
+bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES -o $ROOT/output/$DB/$RUNID/2-build-models 2>&1
 cd ../..
 set +x
 
@@ -219,9 +224,14 @@ echo Making Predictions
 date
 echo "bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K 2>&1"
 echo ================
+if [ "$fragment_test_set" = true ]; then
+    test_dir=$ROOT/output/$DB/$RUNID/1-generate-test-datasets
+else
+    test_dir=$ROOT/data/$DB/test
+fi
 set -x
 cd src/3-make-predictions
-bash -x opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K -m $ROOT/output/$DB/$RUNID/2-build-models/train_$DB-db -t $ROOT/output/$DB/$RUNID/1-generate-test-datasets -o $ROOT/output/$DB/$RUNID/3-make-predictions 2>&1
+bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K -m $ROOT/output/$DB/$RUNID/2-build-models -t $test_dir -o $ROOT/output/$DB/$RUNID/3-make-predictions 2>&1
 cd ../..
 set +x
 

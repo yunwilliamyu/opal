@@ -211,7 +211,7 @@ NLABELS=$(sort -u $taxids | wc -l)
 
 # specify output data #
 if [[ -z $outputDir ]]; then
-    outputDir=$ROOT/output/$DB/2-build-models/train_$DB-db
+    outputDir=$ROOT/output/$DB/2-build-models
 fi
 mkdir -p $outputDir
 # define output "dictionary" : taxid <--> wv classes
