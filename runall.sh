@@ -9,7 +9,7 @@ NUMHASH=1
 NPASSES=1
 ROWWEIGHT=1
 NBATCHES=1
-fragment_test_set=false
+fragment_test_set=true
 
 #DB=subspecies
 #L=200
@@ -191,8 +191,11 @@ while :; do
 done
 
 RUNID=`date +%s`
-mkdir -p output/${DB}/${RUNID}
-exec > >(tee -i output/${DB}/${RUNID}/run.log) 2>&1
+OUTDIR=$ROOT/output/${DB}/${RUNID}
+DATADIR=$ROOT/data/${DB}
+mkdir -p $OUTDIR
+exec > >(tee -i ${OUTDIR}/run.log) 2>&1
+set -o posix > ${OUTDIR}/params.txt
 
 echo ================
 echo Invocation
@@ -205,7 +208,7 @@ date
 echo ================
 set -x
 cd src/1-generate-test-datasets
-bash opal-generate.sh -d $DB -l $L -c $COVERAGE -o $ROOT/output/$DB/$RUNID/1-generate-test-datasets 2>&1
+bash opal-generate.sh -i $DATADIR -l $L -c $COVERAGE -o $OUTDIR/1-generate-test-datasets 2>&1
 cd ../..
 set +x
 
@@ -215,7 +218,7 @@ date
 echo ================
 set -x
 cd src/2-build-models
-bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES -o $ROOT/output/$DB/$RUNID/2-build-models 2>&1
+bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES -o $OUTDIR/2-build-models 2>&1
 cd ../..
 set +x
 
@@ -225,13 +228,13 @@ date
 echo "bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K 2>&1"
 echo ================
 if [ "$fragment_test_set" = true ]; then
-    test_dir=$ROOT/output/$DB/$RUNID/1-generate-test-datasets
+    test_dir=$OUTDIR/1-generate-test-datasets
 else
     test_dir=$ROOT/data/$DB/test
 fi
 set -x
 cd src/3-make-predictions
-bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K -m $ROOT/output/$DB/$RUNID/2-build-models -t $test_dir -o $ROOT/output/$DB/$RUNID/3-make-predictions 2>&1
+bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K -m $OUTDIR/2-build-models -t $test_dir -o $OUTDIR/3-make-predictions 2>&1
 cd ../..
 set +x
 

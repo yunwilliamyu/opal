@@ -21,17 +21,17 @@ COVERAGE=1
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
-echo Usage: $0 -d "[database]" -l "[fragment-length]" -c "[coverage]" -o "[outputdir]"
+echo Usage: $0 -i "[datadir]" -l "[fragment-length]" -c "[coverage]" -o "[outputdir]"
 }
 
-while getopts ":hd:l:c:o:" opt; do
+while getopts ":hi:l:c:o:" opt; do
     case $opt in
         h)
             show_help
             exit 0
             ;;
-        d)
-            DB=$OPTARG
+        i)
+            DATADIR=$OPTARG
             ;;
         l)
             L=$OPTARG
@@ -49,19 +49,21 @@ while getopts ":hd:l:c:o:" opt; do
 done
 shift "$((OPTIND-1))"
 
-echo Database=$DB
+echo Data_dir=$DATADIR
 echo length=$L
 echo coverage=$COVERAGE
 
 # specify input data
-fasta=$ROOT/data/$DB/test/$DB.test.fasta
-taxids=$ROOT/data/$DB/test/$DB.test.taxid
+
+testfasta_files="$DATADIR/test/*.fasta"
+testfasta_array=( $testfasta_files )
+fasta="${testfasta_array[0]}"
+testid_files="$DATADIR/test/*.taxid"
+testid_array=( $testid_files )
+taxids="${testid_array[0]}"
 
 # set seed (for reproducibility)
 SEED=42
-if [[ -z $OUTPUTDIR ]]; then
-    OUTPUTDIR=$ROOT/output/$DB/1-generate-test-datasets
-fi
 mkdir -p $OUTPUTDIR
 
 # draw fragments
