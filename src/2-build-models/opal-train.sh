@@ -35,7 +35,7 @@ BITS=31
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
-echo Usage: $0 -d [database] -l [fragment-length] -c [coverage] --nbatches [NBATCHES] --kmer [KMER_LENGTH] --row_weight [row_weight] --numHash [numHash] --npasses [NPASSES]
+echo Usage: $0 -d [database] -l [fragment-length] -c [coverage] --nbatches [NBATCHES] --kmer [KMER_LENGTH] --row_weight [row_weight] --numHash [numHash] --npasses [NPASSES] -o [OUTPUT_DIR]
 }
 
 while :; do
@@ -140,6 +140,22 @@ while :; do
             printf 'ERROR: "--kmer" requires a non-empty option argument.\n' >&2
             exit 1
             ;;
+        -o|--outputdir)
+            if [ -n "$2" ]; then
+                outputDir=$2
+                shift
+            else
+                printf 'ERROR: "--outputdir" requires a non-empty option argument.\n' >&2
+                exit 1
+            fi
+            ;;
+        --outputdir=?*)
+            outputDir=${1#*=}
+            ;;
+        --outputdir=)
+            printf 'ERROR: "--outputdir" requires a non-empty option argument.\n' >&2
+            exit 1
+            ;;
         --row_weight)
             if [ -n "$2" ]; then
                 row_weight=$2
@@ -194,7 +210,9 @@ NLABELS=$(sort -u $taxids | wc -l)
 
 
 # specify output data #
-outputDir=$ROOT/output/$DB/2-build-models/train_$DB-db
+if [[ -z $outputDir ]]; then
+    outputDir=$ROOT/output/$DB/2-build-models/train_$DB-db
+fi
 mkdir -p $outputDir
 # define output "dictionary" : taxid <--> wv classes
 dico=$outputDir/vw-dico.txt

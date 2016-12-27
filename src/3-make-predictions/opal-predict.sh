@@ -21,20 +21,14 @@ K=64
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
-echo Usage: $0 -d [database] --nbatches [NBATCHES] --kmer [KMER_LENGTH] 
+echo Usage: $0 -d [database] --nbatches [NBATCHES] --kmer [KMER_LENGTH] --outputdir [OUTPUTDIR] --modeldir [MODELDIR] --testdir [TESTDIR]
 }
-
-# Don't use unprocessed test fragments unless otherwise specified
-use_existing=0
 
 while :; do
     case $1 in
         -h|-\?|--help)
             show_help
             exit 0
-            ;;
-        --use-unprocessed-test-fragments)
-            use_existing=1
             ;;
         -d|--database)
             if [ -n "$2" ]; then
@@ -84,6 +78,54 @@ while :; do
             printf 'ERROR: "--kmer" requires a non-empty option argument.\n' >&2
             exit 1
             ;;
+        -o|--outputdir)
+            if [ -n "$2" ]; then
+                outputDir=$2
+                shift
+            else
+                printf 'ERROR: "--outputdir" requires a non-empty option argument.\n' >&2
+                exit 1
+            fi
+            ;;
+        --outputdir=?*)
+            outputDir=${1#*=}
+            ;;
+        --outputdir=)
+            printf 'ERROR: "--outputdir" requires a non-empty option argument.\n' >&2
+            exit 1
+            ;;
+        -m|--modeldir)
+            if [ -n "$2" ]; then
+                modelDir=$2
+                shift
+            else
+                printf 'ERROR: "--modeldir" requires a non-empty option argument.\n' >&2
+                exit 1
+            fi
+            ;;
+        --modeldir=?*)
+            modelDir=${1#*=}
+            ;;
+        --modeldir=)
+            printf 'ERROR: "--modeldir" requires a non-empty option argument.\n' >&2
+            exit 1
+            ;;
+        -t|--testdir)
+            if [ -n "$2" ]; then
+                testDir=$2
+                shift
+            else
+                printf 'ERROR: "--testdir" requires a non-empty option argument.\n' >&2
+                exit 1
+            fi
+            ;;
+        --testdir=?*)
+            testDir=${1#*=}
+            ;;
+        --testdir=)
+            printf 'ERROR: "--testdir" requires a non-empty option argument.\n' >&2
+            exit 1
+            ;;
         --)
             shift
             break
@@ -97,26 +139,31 @@ while :; do
     shift
 done
 
-modelDir=$ROOT/output/$DB/2-build-models/train_$DB-db
+if [[ -z $modelDir ]]; then
+    modelDir=$ROOT/output/$DB/2-build-models/train_$DB-db
+fi
 model=$modelDir/vw-model_batch-${NBATCHES}.model
 dico=$modelDir/vw-dico.txt
 
 # make predictions fragments 
 
-if [ $use_existing -eq 0 ]; then
-    # use generated test fragments from fasta
-    fasta=$ROOT/output/$DB/1-generate-test-datasets/test.fragments.fasta
-else
-    # use existing test fragments
-    fasta=$ROOT/data/$DB/test/${DB}.test.fasta
+if [[ -z $testDir ]]; then
+    testDir=$ROOT/output/$DB/1-generate-test-datasets
 fi
-mkdir -p $ROOT/output/$DB/3-make-predictions
-prefix=$ROOT/output/$DB/3-make-predictions/test.fragments.$DB-db
+
+fasta=$testDir/test.fragments.fasta
+
+if [[ -z $outputDir ]]; then
+    outputDir=$ROOT/output/$DB/3-make-predictions
+fi
+mkdir -p $outputDir
+prefix=$outputDir/test.fragments.$DB-db
 
 # get vw predictions
 $fasta2skm -i $fasta -k $K  -p $modelDir/patterns.txt | vw -t -i $model -p $prefix.preds.vw
 # convert vw class to taxid
-python vw-class-to-taxid.py $prefix.preds.vw $dico $prefix.preds.taxid
-python eval.py -d $DB
+python vw-class-to-taxid.py ${prefix}.preds.vw $dico ${prefix}.preds.taxid
+#python eval.py -d $DB
+python eval.py -p ${prefix}.preds.taxid -r $testDir/test.fragments.taxid
 
 

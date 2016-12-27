@@ -21,10 +21,10 @@ COVERAGE=1
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
-echo Usage: $0 -d "[database]" -l "[fragment-length]" -c "[coverage]"
+echo Usage: $0 -d "[database]" -l "[fragment-length]" -c "[coverage]" -o "[outputdir]"
 }
 
-while getopts ":hd:l:c:" opt; do
+while getopts ":hd:l:c:o:" opt; do
     case $opt in
         h)
             show_help
@@ -38,6 +38,9 @@ while getopts ":hd:l:c:" opt; do
             ;;
         c)
             COVERAGE=$OPTARG
+            ;;
+        o)
+            OUTPUTDIR=$OPTARG
             ;;
         \?)
             echo "Invalid option -$OPTARG"
@@ -56,7 +59,9 @@ taxids=$ROOT/data/$DB/test/$DB.test.taxid
 
 # set seed (for reproducibility)
 SEED=42
-OUTPUTDIR=$ROOT/output/$DB/1-generate-test-datasets
+if [[ -z $OUTPUTDIR ]]; then
+    OUTPUTDIR=$ROOT/output/$DB/1-generate-test-datasets
+fi
 mkdir -p $OUTPUTDIR
 
 # draw fragments

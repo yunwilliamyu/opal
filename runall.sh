@@ -2,9 +2,9 @@
 # This runs the full pipeline of simulating fragments, training, and then prediction.
 
 DB=A1
-L=32
-COVERAGE=0.1
-K=4
+L=16
+COVERAGE=1
+K=8
 NUMHASH=2
 NPASSES=1
 ROWWEIGHT=1
@@ -18,6 +18,12 @@ NBATCHES=1
 #NPASSES=1000
 #ROWWEIGHT=32
 #NBATCHES=64
+
+ROOT=.
+if hash readlink
+then
+    ROOT=`readlink -f $ROOT`
+fi
 
 function show_help {
 echo This script assumes that it is run from the directory in which it lives.
@@ -179,7 +185,9 @@ while :; do
     shift
 done
 
-exec > >(tee -i output/${DB}/`date +%s`.log)
+RUNID=`date +%s`
+mkdir -p output/${DB}/${RUNID}
+exec > >(tee -i output/${DB}/${RUNID}/run.log) 2>&1
 
 echo ================
 echo Invocation
@@ -189,29 +197,33 @@ echo ================
 echo ================
 echo Generating Test Datasets
 date
-echo "bash opal-generate.sh -d $DB -l $L -c $COVERAGE 2>&1"
 echo ================
+set -x
 cd src/1-generate-test-datasets
-bash opal-generate.sh -d $DB -l $L -c $COVERAGE 2>&1
+bash opal-generate.sh -d $DB -l $L -c $COVERAGE -o $ROOT/output/$DB/$RUNID/1-generate-test-datasets 2>&1
 cd ../..
+set +x
 
 echo ================
 echo Building Models
 date
-echo "bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES 2>&1"
 echo ================
+set -x
 cd src/2-build-models
-bash opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES 2>&1
+bash -x opal-train.sh -d $DB -l $L -c $COVERAGE --nbatches $NBATCHES --kmer $K --row_weight $ROWWEIGHT --numHash $NUMHASH --npasses $NPASSES -o $ROOT/output/$DB/$RUNID/2-build-models/train_$DB-db 2>&1
 cd ../..
+set +x
 
 echo ================
 echo Making Predictions
 date
 echo "bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K 2>&1"
 echo ================
+set -x
 cd src/3-make-predictions
-bash opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K 2>&1
+bash -x opal-predict.sh -d $DB --nbatches $NBATCHES --kmer $K -m $ROOT/output/$DB/$RUNID/2-build-models/train_$DB-db -t $ROOT/output/$DB/$RUNID/1-generate-test-datasets -o $ROOT/output/$DB/$RUNID/3-make-predictions 2>&1
 cd ../..
+set +x
 
 echo ================
 echo Fine.
