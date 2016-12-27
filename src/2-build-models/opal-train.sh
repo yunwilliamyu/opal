@@ -266,5 +266,8 @@ do
 	rm ${modelPrefix}_batch.cache
 done
 
-
+# Fix to rename the first model for future scripts
+if [[ $NBATCHES -eq 1 ]]; then
+    mv ${modelPrefix}_batch-1.model.sr ${modelPrefix}_batch-1.model
+fi
 
