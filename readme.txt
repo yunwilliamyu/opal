@@ -59,9 +59,8 @@ util/
         $ sh opal-generate.sh
 
         Simulated fragments will be saved in output/1-generate-test-datasets.
-        If existing test fragments are provided, this step can be ignored, 
-        but directory of the existing test fragments should be set manually 
-        in step 3). (see below)
+        If existing test fragments are provided instead of a large fasta, use option
+        --fragment-test-set, which will directly use the files in //data/[example]/test
 
     2) train classifier
         $ cd src/2-build-models
@@ -80,7 +79,6 @@ util/
     3) make prediction
         $ cd src/3-make-predictions
         $ sh opal-predict.sh
-        if existing test fragments are provided, they should be located in the standard location under data/example/test/ and opal-predict.sh should be called with option --use-existing
 
 Contact
     Yunan Luo, luoyunan@gmail.com

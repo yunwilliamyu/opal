@@ -9,7 +9,7 @@ NUMHASH=1
 NPASSES=1
 ROWWEIGHT=1
 NBATCHES=1
-fragment_test_set=true
+fragment_test_set=false
 
 #DB=subspecies
 #L=200
