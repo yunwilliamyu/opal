@@ -453,7 +453,7 @@ class ArgClass:
         self.kwargs = kwargs
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # Shared arguments
     frag_length_arg = ArgClass("-l", "--frag-length",
             help="length of fragments to be drawn from fasta",
@@ -482,13 +482,15 @@ if __name__ == "__main__":
 
     subparsers = parser.add_subparsers(help="sub-commands", dest="mode")
 
-    parser_frag = subparsers.add_parser("frag", help="Fragment a fasta file into substrings for training/testing")
+    parser_frag = subparsers.add_parser("frag", help="Fragment a fasta file into substrings for training/testing",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_frag.add_argument("test_dir", help="Input directory for test data")
     parser_frag.add_argument("frag_dir", help="Output directory for fasta fragments")
     parser_frag.add_argument(*frag_length_arg.args, **frag_length_arg.kwargs)
     parser_frag.add_argument(*coverage_arg.args, **coverage_arg.kwargs)
 
-    parser_train = subparsers.add_parser("train", help="Train a Vowpal Wabbit model using Opal hashes")
+    parser_train = subparsers.add_parser("train", help="Train a Vowpal Wabbit model using Opal hashes",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_train.add_argument("train_dir", help="Input directory for train data")
     parser_train.add_argument("model_dir", help="Output directory for VW model")
     parser_train.add_argument(*frag_length_arg.args, **frag_length_arg.kwargs)
@@ -502,17 +504,22 @@ if __name__ == "__main__":
     parser_train.add_argument(*lambda1_arg.args, **lambda1_arg.kwargs)
     parser_train.add_argument(*lambda2_arg.args, **lambda2_arg.kwargs)
 
-    parser_predict = subparsers.add_parser("predict", help="Predict metagenomic classifications given a Opal/VW model")
+    parser_predict = subparsers.add_parser("predict", help="Predict metagenomic classifications given a Opal/VW model",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_predict.add_argument("model_dir", help="Input directory for VW model")
     parser_predict.add_argument("test_dir", help="Input directory for already fragmented test data")
     parser_predict.add_argument("predict_dir", help="Output directory for predictions")
     parser_predict.add_argument(*kmer_arg.args, **kmer_arg.kwargs)
 
-    parser_eval = subparsers.add_parser('eval', help="Evaluate quality of predictions given a reference")
+    parser_eval = subparsers.add_parser('eval', help="Evaluate quality of predictions given a reference",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_eval.add_argument("reference_file", help="Gold standard labels")
     parser_eval.add_argument("predicted_labels", help="Predicted labels")
 
-    parser_simulate = subparsers.add_parser('simulate', help="Run a full pipeline of frag, train, predict, and eval to determine how good a model is under particular parameter ranges") 
+    parser_simulate = subparsers.add_parser('simulate', help='''Run a full
+            pipeline of frag, train, predict, and eval to determine how good a
+            model is under particular parameter ranges''',
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_simulate.add_argument("test_dir", help="Input directory for test data")
     parser_simulate.add_argument("train_dir", help="Input directory for train data")
     parser_simulate.add_argument("out_dir", help="Output directory for all steps")

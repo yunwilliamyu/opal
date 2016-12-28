@@ -15,25 +15,6 @@ data/: training and testing data should be given a subfolder here
                 Note that it is fasta file of sequence, not short fragments. 
                 We need to first simulated test data by randomly drawing fragments 
                 from these fasta records (see below).
-output/: All scripts will output to subfolders here corresponding to data/[example]
-    [example]/
-        1-generate-test-datasets/
-            simulated test data (drawn fragents) are saved here.
-        2-build-models/
-            classifier will be saved here.
-        3-make-predictions/
-            fragment classifications are saved here.
-        TMP/:
-            temp files.
-src/
-    1-generate-test-datasets/
-        opal-generate.sh: draw fragments for testing.
-    2-build-models/
-        opal-train.sh: train a multi-class svm using VW library.
-    3-make-predictions/
-        opal-predict.sh: classify fragments.
-        vw-class-to-taxid.py: map VW labels to tax id.
-        eval.py: evaluation of supervised classification
 util/
     ext/: external libararies.
     test/: test drawfrag.c and fasta2skm.c
@@ -51,37 +32,63 @@ util/
         $ sh test_skm.sh
         Results will be saved in output/
 
-3. Usage: runall.sh will automatically do all of the following steps and can be
-        modified with command line parameters.
+3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
-    1) simulate fragments for testing.
-        $ cd src/1-generate-test-datasets
-        $ sh opal-generate.sh
+Modes:
+    (default --optional-arguments such as k-mer length, fragment size,
+    hash functions, etc. are set for quick run, and so will give terrible
+    predictions. If you're actually going to use for training, be sure to
+    set better parameters.)
 
-        Simulated fragments will be saved in output/1-generate-test-datasets.
-        If existing test fragments are provided instead of a large fasta, use option
-        --fragment-test-set, which will directly use the files in //data/[example]/test
+    1) ./opal.py frag [--optional-arguments] test_dir frag_dir [-h]
 
-    2) train classifier
-        $ cd src/2-build-models
-        $ bash opal-train.sh
+        Looks for a fasta file in test_dir with matching taxid file.
+        Randomly draws fragments of length and coverage specified in
+        optional-arguments. (use "./opal.py frag -h" for details)
 
-        Important parameters:
-        DB: name of the folder of training/test data.
-        NBATCHES: number of train batches.
-        L: fragment length.
-        COVERAGE: average coverage of each position in the sequence.
-        K: k-mer size.
-        row_weight: how many positions will be randomly chosen in the contiguous k-mer. (k should be multiple of row_weight, e.g., k=32, row_weight=16)
-        numHash: number of hashing function
-        (The current parameters are set as such for quick example, so the performance is not good.)
+        Outputs these fragments with corresponding taxid into frag_dir.
+        
+    2) ./opal.py train [--optional-arguments] train_dir model_dir [-h]
 
-    3) make prediction
-        $ cd src/3-make-predictions
-        $ sh opal-predict.sh
+        Looks for a fasta file in train_dir with matching taxid file.
+        For each batch of training, randomly draw fragments and generate
+        feature vectors using Opal LDPC hashes, and trains Vowpal_Wabbit
+        One-Against-All classifier against all batches sequentially.
+
+        Outputs the generated classifier model into model_dir.
+
+    3) ./opal.py predict [--optional-arguments] model_dir test_dir predict_dir [-h]
+
+        Looks for a classifier model in model_dir, and a fasta file in
+        test_dir. Note that if the fasta file is of a full refence, you
+        may need to run ./opal.py frag and use the outputted frag_dir in
+        place of test_dir so that you are predicting on small fragments.
+        Or, if you have a fasta file of reads, that is correct input too.
+
+        Outputs the predictions in predict_dir as a fasta file with
+        corresponding a corresponding taxid file.
+
+    4) ./opal.py eval reference_file predicted_labels [-h]
+
+        Naive evaluation of prediction accuracy.
+
+    5) ./opal.py simulate [--optional-arguments] test_dir train_dir out_dir [-h]
+
+        Runs a full pipeline training on data in train_dir, testing on
+        data in test_dir, and outputting everything under out_dir in the
+        following directory structure:
+
+        1frag/
+            simulated test data (drawn fragments) are saved here.
+            (ignored if --do-not-fragment)
+        2model/
+            classifier will be saved here.
+        3predict/
+            fragment classifications are saved here.
 
 Contact
-    Yunan Luo, luoyunan@gmail.com
+    Yunan Luo, luoyunan@gmail.com (original author)
+    Yun William Yu, contact@yunwilliamyu.net (author of Python rewrite)
 
 Acknowledgement
     This implementation of Opal is adapted from the source code of the following paper:
