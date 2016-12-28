@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-# This runs the full pipeline of simulating fragments, training, and then prediction.
+'''Wrapper script to run the Opal metagenomic binning software. This runs the
+full pipeline of simulating fragments, training, and then prediction and
+evaluation, as well as provides subcommands to do any of those steps
+separately.
+
+For more details see the "-h" help string of main'''
 
 from __future__ import print_function
 
@@ -79,12 +84,10 @@ def get_fasta_and_taxid(directory):
     try:
         fasta = glob.glob(directory + "/*.fasta")[0]
     except IndexError:
-        eprint("Could not find fasta file in:" + directory)
-        sys.exit(1)
+        raise RuntimeError("Could not find fasta file in:" + directory)
     taxids = os.path.splitext(fasta)[0] + ".taxid"
     if not os.path.isfile(taxids):
-        eprint("Could not find matching taxid: " + taxids)
-        sys.exit(1)
+        raise RuntimeError("Could not find matching taxid: " + taxids)
     return [fasta, taxids]
 
 def get_final_model(directory):
@@ -93,8 +96,7 @@ def get_final_model(directory):
     try:
         model = glob.glob(directory + "/*_final.model")[0]
     except IndexError:
-        eprint("Could not find final model file in: " + directory)
-        sys.exit(1)
+        raise RuntimeError("Could not find final model file in: " + directory)
     return model
 
 def evaluate_predictions(reffile, predfile):
@@ -380,8 +382,7 @@ def predict(model_dir, test_dir, predict_dir, args):
     try:
         fasta = glob.glob(test_dir + "/*.fasta")[0]
     except:
-        eprint("No fasta file found in: " + test_dir)
-        exit(0)
+        raise RuntimeError("No fasta file found in: " + test_dir)
     model = get_final_model(model_dir)
     dico = os.path.join(model_dir, "vw-dico.txt")
     pattern_file = os.path.join(model_dir, "patterns.txt")
@@ -454,7 +455,7 @@ class ArgClass:
         self.args = args
         self.kwargs = kwargs
 
-if __name__ == "__main__":
+def main(argv):
     parser = argparse.ArgumentParser(
             formatter_class=argparse.RawTextHelpFormatter,
             description='''
@@ -560,8 +561,7 @@ ranges''', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_simulate.add_argument(*lambda1_arg.args, **lambda1_arg.kwargs)
     parser_simulate.add_argument(*lambda2_arg.args, **lambda2_arg.kwargs)
 
-    
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     print(args)
     sys.stdout.flush()
@@ -600,8 +600,6 @@ ranges''', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     elif mode == "eval":
         evaluate_predictions(args.reference_file, args.predicted_labels)
 
-
-
-
-
+if __name__ == "__main__":
+    main(sys.argv[1:])
 
