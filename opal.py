@@ -9,6 +9,7 @@ import sys
 import glob
 import subprocess
 import random
+import threading
 import pandas as pd
 import numpy as np
 from sklearn.metrics import precision_score, recall_score
@@ -117,6 +118,7 @@ def evaluate_predictions(reffile, predfile):
     print("micro = {:.2f}".format(micro*100))
     print("macro = {:.2f}".format(macro*100))
     print("median = {:.2f}".format(median*100))
+    sys.stdout.flush()
 
 
 def frag(test_dir, frag_dir, args):
@@ -162,6 +164,7 @@ taxids output:  {taxid_out}'''.format(
     taxids=taxids, fasta_out=fasta_out, gi2taxid_out=gi2taxid_out,
     taxid_out=taxid_out)
     )
+    sys.stdout.flush()
     # set seed (for reproducibility)
     seed = 42
     # draw fragments
@@ -181,6 +184,7 @@ taxids output:  {taxid_out}'''.format(
 Total wall clock runtime (sec): {}
 ================================================'''.format(
     (datetime.now() - starttime).total_seconds()))
+    sys.stdout.flush()
 
     return 0
 
@@ -247,8 +251,10 @@ taxids input:   {taxids}
     fasta=fasta,
     taxids=taxids)
     )
+    sys.stdout.flush()
     num_labels = unique_lines(taxids)
     print("Number labels:  {}".format(num_labels))
+    sys.stdout.flush()
 
     safe_makedirs(model_dir)
 
@@ -290,8 +296,12 @@ taxids input:   {taxids}
             "-k", str(kmer),
             "-d", dico,
             "-p", pattern_file]
+        print("Getting training set ...")
+        sys.stdout.flush()
         training_list = subprocess.check_output(
                 fasta2skm_param_list, env=my_env).splitlines()
+        print("Shuffling training set ...")
+        sys.stdout.flush()
         random.shuffle(training_list)
         curr_model = model_prefix + "_batch-{}.model".format(i)
         prev_model = model_prefix + "_batch-{}.model".format(i-1) # May not exist if first run
@@ -311,9 +321,24 @@ taxids input:   {taxids}
         else:
             vw_param_list = vw_param_base + vw_param_firstrun
         print(vw_param_list)
-        p = subprocess.Popen(vw_param_list, env=my_env, stdin=subprocess.PIPE)
-        p.communicate(input='\n'.join(training_list))
-        
+        sys.stdout.flush()
+        vwps = subprocess.Popen(vw_param_list, env=my_env,
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT)
+        # Cannot use
+        #   vwps.communicate(input='\n'.join(training_list))
+        # Because I want to display output as it comes, so have to
+        # manually to threading. -ywy 2016-12-28
+        def vw_pipe_writer():
+            vwps.stdin.write('\n'.join(training_list))
+            vwps.stdin.close()
+        thread = threading.Thread(target=vw_pipe_writer)
+        thread.start()
+        while vwps.poll() is None:
+            l = vwps.stdout.readline()
+            sys.stdout.write(l)
+            sys.stdout.flush()
+        thread.join() # This shouldn't be necessary, but just being safe.
 
         if i > 0:
             os.remove(prev_model)
@@ -324,6 +349,7 @@ taxids input:   {taxids}
 Total wall clock runtime (sec): {}
 ================================================'''.format(
     (datetime.now() - starttime).total_seconds()))
+    sys.stdout.flush()
     return 0
 
 
@@ -372,6 +398,7 @@ LDPC patterns:  {pattern_file}
     dico=dico,
     pattern_file=pattern_file)
     )
+    sys.stdout.flush()
     safe_makedirs(predict_dir)
     prefix = os.path.join(predict_dir, "test.fragments-db")
 
@@ -387,8 +414,13 @@ LDPC patterns:  {pattern_file}
         "-p", prefix + ".preds.vw"]
     ps = subprocess.Popen(fasta2skm_param_list, env=my_env, 
             stdout=subprocess.PIPE)
-    subprocess.check_call(vw_param_list, env=my_env,
-            stdin=ps.stdout)
+    vwps = subprocess.Popen(vw_param_list, env=my_env,
+            stdin=ps.stdout, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
+    while vwps.poll() is None:
+        l = vwps.stdout.readline()
+        sys.stdout.write(l)
+        sys.stdout.flush()
 
     # Convert back to standard taxonomic IDs instead of IDs
     vw_class_to_taxid(prefix + '.preds.vw', dico, prefix + '.preds.taxid')
@@ -401,6 +433,7 @@ Total wall clock runtime (sec): {s}
     rf=taxids,
     pl=prefix + '.preds.taxid',
     s=(datetime.now() - starttime).total_seconds()))
+    sys.stdout.flush()
     return (taxids, prefix + '.preds.taxid')
 
 
@@ -499,15 +532,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print(args)
+    sys.stdout.flush()
 
-    #test_dir = '/mnt/work/ywy/opal-dev/data/A1/test'
-    #train_dir = '/mnt/work/ywy/opal-dev/data/A1/train'
-    #frag_dir = '/mnt/work/ywy/opal-dev/out-test/1frag'
-    #model_dir = '/mnt/work/ywy/opal-dev/out-test/2model'
-    #predict_dir = '/mnt/work/ywy/opal-dev/out-test/3predict'
-    
     mode = args.mode
     if (mode == "simulate"):
+        fullstarttime = datetime.now()
+        print("Full simulation")
+        print("{:%Y-%m-%d %H:%M:%S}".format(fullstarttime))
+        print("Fragment mode: {}".format(not args.do_not_fragment))
         test_dir = args.test_dir
         train_dir = args.train_dir
         output_dir = args.out_dir
@@ -522,6 +554,8 @@ if __name__ == "__main__":
             train(train_dir, model_dir, args)
             rf, pf = predict(model_dir, frag_dir, predict_dir, args)
         evaluate_predictions(rf, pf)
+        print("Total full sim wall clock runtime (sec): {}".format(
+            (datetime.now() - fullstarttime).total_seconds()))
     elif mode == "frag":
         test_dir = args.test_dir
         frag_dir = args.frag_dir
