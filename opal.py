@@ -119,7 +119,7 @@ def evaluate_predictions(reffile, predfile):
     print("median = {:.2f}".format(median*100))
 
 
-def frag(test_dir, frag_dir, frag_length=16, coverage=1):
+def frag(test_dir, frag_dir, args):
     '''Draws fragments from the fasta file found in test_dir. Note that
     there must be a taxid file of the same basename with matching ids for
     each of the fasta lines.
@@ -127,10 +127,17 @@ def frag(test_dir, frag_dir, frag_length=16, coverage=1):
     test_dir (string):  must be a path to a directory with a single fasta
                         and taxid file
     frag_dir (string):  must be a path to an output directory
-    frag_length (int):  length of fragments to be drawn
-    coverage (float):   fraction of times each location is to be covered
-                        by drawn fragments
+
+    Unpacking args:
+        frag_length (int):  length of fragments to be drawn
+        coverage (float):   fraction of times each location is to be covered
+                            by drawn fragments
     '''
+    # Unpack args
+    frag_length = args.frag_length
+    coverage = args.coverage
+    # Finish unpacking args
+
     fasta, taxids = get_fasta_and_taxid(test_dir)
     safe_makedirs(frag_dir)
     fasta_out = os.path.join(frag_dir, "test.fragments.fasta")
@@ -177,9 +184,7 @@ Total wall clock runtime (sec): {}
 
     return 0
 
-def train(ref_dir, model_dir, frag_length=16, coverage=1,
-        kmer=8, row_weight=1, num_hash=1, num_batches=2, num_passes=1,
-        bits=31, lambda1=0, lambda2=0):
+def train(ref_dir, model_dir, args):
     '''Draws fragments from the fasta file found in data_dir. Note that
     there must be a taxid file of the same basename with matching ids for
     each of the fasta lines.
@@ -188,18 +193,32 @@ def train(ref_dir, model_dir, frag_length=16, coverage=1,
                         and taxid file
     model_dir (string): must be a path to an output directory
 
-    frag_length (int):  length of fragments to be drawn
-    coverage (float):   fraction of times each location is to be covered
-                        by drawn fragments
-    kmer (int):         size of k-mers used
-    row_weight (int):   how many positions will be randomly chosen in the
-                        contiguous k-mer (k-mer length should be multiple
-                        of row_weight)
+    Unpacking args:
+        frag_length (int):  length of fragments to be drawn
+        coverage (float):   fraction of times each location is to be covered
+                            by drawn fragments
+        kmer (int):         size of k-mers used
+        row_weight (int):   how many positions will be randomly chosen in the
+                            contiguous k-mer (k-mer length should be multiple
+                            of row_weight)
 
-    num_hash (int):     number of hashing functions
-    num_batches (int):  number of times to run vowpal_wabbit
-    num_passes (int):   number of passes within vowpal_wabbit
+        num_hash (int):     number of hashing functions
+        num_batches (int):  number of times to run vowpal_wabbit
+        num_passes (int):   number of passes within vowpal_wabbit
     '''
+    # Unpack args
+    frag_length = args.frag_length
+    coverage = args.coverage
+    kmer = args.kmer
+    row_weight = args.row_weight
+    num_hash = args.num_hash
+    num_batches = args.num_batches
+    num_passes = args.num_passes
+    bits = args.bits
+    lambda1 = args.lambda1
+    lambda2 = args.lambda2
+    # Finish unpacking args
+
     fasta, taxids = get_fasta_and_taxid(ref_dir)
     starttime = datetime.now()
     print(
@@ -308,8 +327,7 @@ Total wall clock runtime (sec): {}
     return 0
 
 
-def predict(model_dir, test_dir, predict_dir,
-        kmer=8):
+def predict(model_dir, test_dir, predict_dir, args):
     '''Draws fragments from the fasta file found in data_dir. Note that
     there must be a taxid file of the same basename with matching ids for
     each of the fasta lines.
@@ -319,8 +337,13 @@ def predict(model_dir, test_dir, predict_dir,
     model_dir (string): must be a path to a directory with a vw model file
     predict_dir (string):output directory of predictions
 
-    kmer (int):         size of k-mers used
+    Unpacking args:
+        kmer (int):         size of k-mers used
     '''
+    # Unpack args
+    kmer = args.kmer
+    # Finish unpacking args
+
     fasta, taxids = get_fasta_and_taxid(test_dir)
     model = get_final_model(model_dir)
     dico = os.path.join(model_dir, "vw-dico.txt")
@@ -380,58 +403,100 @@ def parse_extra(parser, namespace):
         namespaces.append(n)
     return namespaces
 
+class ArgClass:
+    '''So I don't have to duplicate argument info'''
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--output", help="Output directory for results", nargs=1)
-    parser.add_argument("--train-dir", help="Input directory for training data", nargs=1)
-    parser.add_argument("--frag-dir", help="Output directory for fasta fragments", nargs=1)
-    parser.add_argument("--model-dir", help="Output directory for Vowpal Wabbit model", nargs=1)
-    parser.add_argument("--predict-dir", help="Output directory for taxonomic predictions", nargs=1)
+    # Shared arguments
+    frag_length_arg = ArgClass("-l", "--frag-length",
+            help="length of fragments to be drawn from fasta",
+            nargs=1, type=int, default=16)
+    kmer_arg = ArgClass("-k", "--kmer", help="length of k-mers used",
+            nargs=1, type=int, default=8)
+    coverage_arg = ArgClass("-c", "--coverage", help="""number/fraction of
+            times each location in a fragment should be covered by a k-mer""",
+            nargs=1, type=float, default=1.0)
+    row_weight_arg = ArgClass("--row-weight", help="""the number of positions
+            that will be randomly chosen in the contiguous k-mer; k-mer
+            length should be a multiple of row_weight""", nargs=1, type=int, default=4)
+    num_hash_arg = ArgClass("--num-hash", help="""number of k-mer hashing
+            functions to get features""", nargs=1, type=int, default=1)
+    num_batches_arg = ArgClass("--num-batches", help="""Number of times to
+            generate a random batch of training data for VW""",
+            nargs=1, type=int, default=1)
+    num_passes_arg = ArgClass("--num-passes",
+            help="Number of VW passes in each training batch",
+            nargs=1, type=int, default=1)
+    bits_arg = ArgClass("--bits", help="Number of bits used in VW model",
+            nargs=1, type=int, default=31)
+    lambda1_arg = ArgClass("--lambda1", help="VW model lambda1 training parameter", nargs=1, type=float, default=0.)
+    lambda2_arg = ArgClass("--lambda2", help="VW model lambda2 training parameter", nargs=1, type=float, default=0.)
 
-    subparsers = parser.add_subparsers(help="sub-commands")
+
+    subparsers = parser.add_subparsers(help="sub-commands", dest="mode")
 
     parser_frag = subparsers.add_parser("frag", help="Fragment a fasta file into substrings for training/testing")
     parser_frag.add_argument("test_dir", help="Input directory for test data")
     parser_frag.add_argument("frag_dir", help="Output directory for fasta fragments")
+    parser_frag.add_argument(*frag_length_arg.args, **frag_length_arg.kwargs)
+    parser_frag.add_argument(*coverage_arg.args, **coverage_arg.kwargs)
 
     parser_train = subparsers.add_parser("train", help="Train a Vowpal Wabbit model using Opal hashes")
     parser_train.add_argument("train_dir", help="Input directory for train data")
     parser_train.add_argument("model_dir", help="Output directory for VW model")
+    parser_train.add_argument(*frag_length_arg.args, **frag_length_arg.kwargs)
+    parser_train.add_argument(*coverage_arg.args, **coverage_arg.kwargs)
+    parser_train.add_argument(*kmer_arg.args, **kmer_arg.kwargs)
+    parser_train.add_argument(*num_batches_arg.args, **num_batches_arg.kwargs)
+    parser_train.add_argument(*num_passes_arg.args, **num_passes_arg.kwargs)
+    parser_train.add_argument(*num_hash_arg.args, **num_hash_arg.kwargs)
+    parser_train.add_argument(*row_weight_arg.args, **row_weight_arg.kwargs)
+    parser_train.add_argument(*bits_arg.args, **bits_arg.kwargs)
+    parser_train.add_argument(*lambda1_arg.args, **lambda1_arg.kwargs)
+    parser_train.add_argument(*lambda2_arg.args, **lambda2_arg.kwargs)
 
     parser_predict = subparsers.add_parser("predict", help="Predict metagenomic classifications given a Opal/VW model")
     parser_predict.add_argument("model_dir", help="Input directory for VW model")
     parser_predict.add_argument("test_dir", help="Input directory for already fragmented test data")
     parser_predict.add_argument("predict_dir", help="Output directory for predictions")
+    parser_predict.add_argument(*kmer_arg.args, **kmer_arg.kwargs)
 
     parser_eval = subparsers.add_parser('eval', help="Evaluate quality of predictions given a reference")
     parser_eval.add_argument("reference_file", help="Gold standard labels")
     parser_eval.add_argument("predicted_labels", help="Predicted labels")
 
-    parser_simulate = subparsers.add_parser('simulate', help="Run a full pipeline of frag, train, predict, and eval to determine how good a model is under particular parameter ranges")
+    parser_simulate = subparsers.add_parser('simulate', help="Run a full pipeline of frag, train, predict, and eval to determine how good a model is under particular parameter ranges") 
     parser_simulate.add_argument("test_dir", help="Input directory for test data")
     parser_simulate.add_argument("train_dir", help="Input directory for train data")
     parser_simulate.add_argument("out_dir", help="Output directory for all steps")
     parser_simulate.add_argument("--do-not-fragment", help="If set, will use test_dir fasta files as is without fragmenting", action="store_true")
+    parser_simulate.add_argument(*frag_length_arg.args, **frag_length_arg.kwargs)
+    parser_simulate.add_argument(*coverage_arg.args, **coverage_arg.kwargs)
+    parser_simulate.add_argument(*kmer_arg.args, **kmer_arg.kwargs)
+    parser_simulate.add_argument(*num_batches_arg.args, **num_batches_arg.kwargs)
+    parser_simulate.add_argument(*num_passes_arg.args, **num_passes_arg.kwargs)
+    parser_simulate.add_argument(*num_hash_arg.args, **num_hash_arg.kwargs)
+    parser_simulate.add_argument(*row_weight_arg.args, **row_weight_arg.kwargs)
+    parser_simulate.add_argument(*bits_arg.args, **bits_arg.kwargs)
+    parser_simulate.add_argument(*lambda1_arg.args, **lambda1_arg.kwargs)
+    parser_simulate.add_argument(*lambda2_arg.args, **lambda2_arg.kwargs)
 
+    
     args = parser.parse_args()
 
     print(args)
-    print(args.predict_dir)
 
-    exit(0)
-    
-    frag_length = 16
-    coverage = 1
-
-    test_dir = '/mnt/work/ywy/opal-dev/data/A1/test'
-    train_dir = '/mnt/work/ywy/opal-dev/data/A1/train'
-    frag_dir = '/mnt/work/ywy/opal-dev/out-test/1frag'
-    model_dir = '/mnt/work/ywy/opal-dev/out-test/2model'
-    predict_dir = '/mnt/work/ywy/opal-dev/out-test/3predict'
+    #test_dir = '/mnt/work/ywy/opal-dev/data/A1/test'
+    #train_dir = '/mnt/work/ywy/opal-dev/data/A1/train'
+    #frag_dir = '/mnt/work/ywy/opal-dev/out-test/1frag'
+    #model_dir = '/mnt/work/ywy/opal-dev/out-test/2model'
+    #predict_dir = '/mnt/work/ywy/opal-dev/out-test/3predict'
     
     mode = args.mode
-    print(mode)
     if (mode == "simulate"):
         test_dir = args.test_dir
         train_dir = args.train_dir
@@ -440,25 +505,25 @@ if __name__ == "__main__":
         model_dir = os.path.join(output_dir, '2model')
         predict_dir = os.path.join(output_dir, '3predict')
         if args.do_not_fragment:
-            train(train_dir, model_dir)
-            predict(model_dir, test_dir, predict_dir)
+            train(train_dir, model_dir, args)
+            predict(model_dir, test_dir, predict_dir, args)
         else:
-            frag(test_dir, frag_dir)
-            train(train_dir, model_dir)
-            predict(model_dir, frag_dir, predict_dir)
+            frag(test_dir, frag_dir, args)
+            train(train_dir, model_dir, args)
+            predict(model_dir, frag_dir, predict_dir, args)
     elif mode == "frag":
         test_dir = args.test_dir
         frag_dir = args.frag_dir
-        frag(test_dir, frag_dir)
+        frag(test_dir, frag_dir, args)
     elif mode == "train":
         train_dir = args.train_dir
         model_dir = args.model_dir
-        train(train_dir, model_dir)
+        train(train_dir, model_dir, args)
     elif mode == "predict":
         model_dir = args.model_dir
         frag_dir = args.frag_dir
         predict_dir = args.predict_dir
-        predict(model_dir, frag_dir, predict_dir)
+        predict(model_dir, frag_dir, predict_dir, args)
 
 
 
