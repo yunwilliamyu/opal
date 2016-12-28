@@ -391,6 +391,10 @@ LDPC patterns:  {pattern_file}
     vw_class_to_taxid(prefix + '.preds.vw', dico, prefix + '.preds.taxid')
 
     evaluate_predictions(taxids, prefix + '.preds.taxid')
+    print('''------------------------------------------------
+Total wall clock runtime (sec): {}
+================================================'''.format(
+    (datetime.now() - starttime).total_seconds()))
     return 0
 
 
@@ -521,9 +525,9 @@ if __name__ == "__main__":
         train(train_dir, model_dir, args)
     elif mode == "predict":
         model_dir = args.model_dir
-        frag_dir = args.frag_dir
+        test_dir = args.test_dir
         predict_dir = args.predict_dir
-        predict(model_dir, frag_dir, predict_dir, args)
+        predict(model_dir, test_dir, predict_dir, args)
 
 
 
