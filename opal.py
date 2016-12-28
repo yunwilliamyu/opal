@@ -1,10 +1,26 @@
 #!/usr/bin/env python
-'''Wrapper script to run the Opal metagenomic binning software. This runs the
-full pipeline of simulating fragments, training, and then prediction and
-evaluation, as well as provides subcommands to do any of those steps
-separately.
+'''
+Runs the Opal LDPC k-mer hash based metagenomic classifier. Based off the paper
+"Low-density locality-sensitive hashing boosts metagenomic binning" by Yunan
+Luo, Jianyeng Zeng, Bonnie Berger, and Jian Peng in the conference Recomb 2016.
+Journal version yet to appear.
 
-For more details see the "-h" help string of main'''
+This Python wrapper was written by Yun William Yu <contact@yunwilliamyu.net>,
+and is based off an earlier set of prototyping Bash scripts by Yunan Luo.
+
+The implementation of the metagenomic binning is adapted from the source code
+of K. Vervier, P. Mahe, M. Tournoud, J.-B. Veyrieras, and J.-P. Vert.
+Large-scale Machine Learning for Metagenomics Sequence Classification ,
+Technical report HAL-01151453, May, 2015.  This code is included in the util/
+directory, with modifications to enable using the Opal Gallagher code based
+hashes in util/ldpc.py.
+
+The code from Verview, et al, requires the Genetic Data Analysis Library, which
+we have included a copy of under util/ext/ for ease of installation.
+
+This pipeline depends on Python scikit-learn and on Vowpal Wabbit. Vowpal
+Wabbit must be properly installed in the system path.
+'''
 
 from __future__ import print_function
 
@@ -458,28 +474,8 @@ class ArgClass:
 def main(argv):
     parser = argparse.ArgumentParser(
             formatter_class=argparse.RawTextHelpFormatter,
-            description='''
-Runs the Opal LDPC k-mer hash based metagenomic classifier. Based off the paper
-"Low-density locality-sensitive hashing boosts metagenomic binning" by Yunan
-Luo, Jianyeng Zeng, Bonnie Berger, and Jian Peng in the conference Recomb 2016.
-Journal version yet to appear.
-
-This Python wrapper was written by Yun William Yu <contact@yunwilliamyu.net>,
-and is based off an earlier set of prototyping Bash scripts by Yunan Luo.
-
-The implementation of the metagenomic binning is adapted from the source code
-of K. Vervier, P. Mahe, M. Tournoud, J.-B. Veyrieras, and J.-P. Vert.
-Large-scale Machine Learning for Metagenomics Sequence Classification ,
-Technical report HAL-01151453, May, 2015.  This code is included in the util/
-directory, with modifications to enable using the Opal Gallagher code based
-hashes in util/ldpc.py.
-
-The code from Verview, et al, requires the Genetic Data Analysis Library, which
-we have included a copy of under util/ext/ for ease of installation.
-
-This pipeline depends on Python scikit-learn and on Vowpal Wabbit. Vowpal
-Wabbit must be properly installed in the system path.
-            ''')
+            description=__doc__
+)
     # Shared arguments
     frag_length_arg = ArgClass("-l", "--frag-length",
             help="length of fragments to be drawn from fasta",
