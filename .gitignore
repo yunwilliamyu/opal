@@ -1,3 +1,4 @@
 /subspecies*.log
 *.swp
 /output/
+*.pyc
