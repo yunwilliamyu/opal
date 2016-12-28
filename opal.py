@@ -21,8 +21,8 @@ we have included a copy of under util/ext/ for ease of installation.
 This pipeline depends on Python scikit-learn and on Vowpal Wabbit. Vowpal
 Wabbit must be properly installed in the system path.
 '''
-
 from __future__ import print_function
+__version__ = "0.9.0"
 
 import argparse
 import os
@@ -474,8 +474,10 @@ class ArgClass:
 def main(argv):
     parser = argparse.ArgumentParser(
             formatter_class=argparse.RawTextHelpFormatter,
-            description=__doc__
-)
+            description=__doc__)
+    parser.add_argument('--version', action='version',
+            version='%(prog)s {version}'.format(version=__version__))
+
     # Shared arguments
     frag_length_arg = ArgClass("-l", "--frag-length",
             help="length of fragments to be drawn from fasta",
