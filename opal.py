@@ -339,6 +339,9 @@ def predict(model_dir, test_dir, predict_dir, args):
 
     Unpacking args:
         kmer (int):         size of k-mers used
+
+    Returns a tuple with (reffile, predicted_labels_file) for easy input
+    into evaluate_predictions.
     '''
     # Unpack args
     kmer = args.kmer
@@ -390,12 +393,15 @@ LDPC patterns:  {pattern_file}
     # Convert back to standard taxonomic IDs instead of IDs
     vw_class_to_taxid(prefix + '.preds.vw', dico, prefix + '.preds.taxid')
 
-    evaluate_predictions(taxids, prefix + '.preds.taxid')
     print('''------------------------------------------------
-Total wall clock runtime (sec): {}
+Reference file:     {rf}
+Predicted labels:   {pl}
+Total wall clock runtime (sec): {s}
 ================================================'''.format(
-    (datetime.now() - starttime).total_seconds()))
-    return 0
+    rf=taxids,
+    pl=prefix + '.preds.taxid',
+    s=(datetime.now() - starttime).total_seconds()))
+    return (taxids, prefix + '.preds.taxid')
 
 
 def parse_extra(parser, namespace):
@@ -510,11 +516,12 @@ if __name__ == "__main__":
         predict_dir = os.path.join(output_dir, '3predict')
         if args.do_not_fragment:
             train(train_dir, model_dir, args)
-            predict(model_dir, test_dir, predict_dir, args)
+            rf, pf = predict(model_dir, test_dir, predict_dir, args)
         else:
             frag(test_dir, frag_dir, args)
             train(train_dir, model_dir, args)
-            predict(model_dir, frag_dir, predict_dir, args)
+            rf, pf = predict(model_dir, frag_dir, predict_dir, args)
+        evaluate_predictions(rf, pf)
     elif mode == "frag":
         test_dir = args.test_dir
         frag_dir = args.frag_dir
@@ -528,6 +535,9 @@ if __name__ == "__main__":
         test_dir = args.test_dir
         predict_dir = args.predict_dir
         predict(model_dir, test_dir, predict_dir, args)
+    elif mode == "eval":
+        evaluate_predictions(args.reference_file, args.predicted_labels)
+
 
 
 
