@@ -455,7 +455,30 @@ class ArgClass:
         self.kwargs = kwargs
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(
+            formatter_class=argparse.RawTextHelpFormatter,
+            description='''
+Runs the Opal LDPC k-mer hash based metagenomic classifier. Based off the paper
+"Low-density locality-sensitive hashing boosts metagenomic binning" by Yunan
+Luo, Jianyeng Zeng, Bonnie Berger, and Jian Peng in the conference Recomb 2016.
+Journal version yet to appear.
+
+This Python wrapper was written by Yun William Yu <contact@yunwilliamyu.net>,
+and is based off an earlier set of prototyping Bash scripts by Yunan Luo.
+
+The implementation of the metagenomic binning is adapted from the source code
+of K. Vervier, P. Mahe, M. Tournoud, J.-B. Veyrieras, and J.-P. Vert.
+Large-scale Machine Learning for Metagenomics Sequence Classification ,
+Technical report HAL-01151453, May, 2015.  This code is included in the util/
+directory, with modifications to enable using the Opal Gallagher code based
+hashes in util/ldpc.py.
+
+The code from Verview, et al, requires the Genetic Data Analysis Library, which
+we have included a copy of under util/ext/ for ease of installation.
+
+This pipeline depends on Python scikit-learn and on Vowpal Wabbit. Vowpal
+Wabbit must be properly installed in the system path.
+            ''')
     # Shared arguments
     frag_length_arg = ArgClass("-l", "--frag-length",
             help="length of fragments to be drawn from fasta",
@@ -518,10 +541,10 @@ if __name__ == "__main__":
     parser_eval.add_argument("reference_file", help="Gold standard labels")
     parser_eval.add_argument("predicted_labels", help="Predicted labels")
 
-    parser_simulate = subparsers.add_parser('simulate', help='''Run a full
-            pipeline of frag, train, predict, and eval to determine how good a
-            model is under particular parameter ranges''',
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_simulate = subparsers.add_parser('simulate', help=
+    '''Run a full pipeline of frag, train, predict, and eval to
+determine how good a model is under particular parameter
+ranges''', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_simulate.add_argument("test_dir", help="Input directory for test data")
     parser_simulate.add_argument("train_dir", help="Input directory for train data")
     parser_simulate.add_argument("out_dir", help="Output directory for all steps")
