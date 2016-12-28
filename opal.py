@@ -424,27 +424,27 @@ if __name__ == "__main__":
     # Shared arguments
     frag_length_arg = ArgClass("-l", "--frag-length",
             help="length of fragments to be drawn from fasta",
-            nargs=1, type=int, default=16)
+            type=int, default=16)
     kmer_arg = ArgClass("-k", "--kmer", help="length of k-mers used",
-            nargs=1, type=int, default=8)
+            type=int, default=8)
     coverage_arg = ArgClass("-c", "--coverage", help="""number/fraction of
             times each location in a fragment should be covered by a k-mer""",
-            nargs=1, type=float, default=1.0)
+            type=float, default=1.0)
     row_weight_arg = ArgClass("--row-weight", help="""the number of positions
             that will be randomly chosen in the contiguous k-mer; k-mer
-            length should be a multiple of row_weight""", nargs=1, type=int, default=4)
+            length should be a multiple of row_weight""", type=int, default=4)
     num_hash_arg = ArgClass("--num-hash", help="""number of k-mer hashing
-            functions to get features""", nargs=1, type=int, default=1)
+            functions to get features""", type=int, default=1)
     num_batches_arg = ArgClass("--num-batches", help="""Number of times to
             generate a random batch of training data for VW""",
-            nargs=1, type=int, default=1)
+            type=int, default=1)
     num_passes_arg = ArgClass("--num-passes",
             help="Number of VW passes in each training batch",
-            nargs=1, type=int, default=1)
+            type=int, default=1)
     bits_arg = ArgClass("--bits", help="Number of bits used in VW model",
-            nargs=1, type=int, default=31)
-    lambda1_arg = ArgClass("--lambda1", help="VW model lambda1 training parameter", nargs=1, type=float, default=0.)
-    lambda2_arg = ArgClass("--lambda2", help="VW model lambda2 training parameter", nargs=1, type=float, default=0.)
+            type=int, default=31)
+    lambda1_arg = ArgClass("--lambda1", help="VW model lambda1 training parameter", type=float, default=0.)
+    lambda2_arg = ArgClass("--lambda2", help="VW model lambda2 training parameter", type=float, default=0.)
 
 
     subparsers = parser.add_subparsers(help="sub-commands", dest="mode")
