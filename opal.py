@@ -344,6 +344,9 @@ taxids input:   {taxids}
         if i == num_batches - 1:
             os.rename(curr_model, model_prefix + "_final.model")
         os.remove(batch_prefix + ".cache")
+        os.remove(fasta_batch)
+        os.remove(taxid_batch)
+        os.remove(gi2taxid_batch)
     print('''------------------------------------------------
 Total wall clock runtime (sec): {}
 ================================================'''.format(
