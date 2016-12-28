@@ -73,7 +73,6 @@ def vw_class_to_taxid(inputfile, dicofile, outputfile):
             predout.write("%s\n"%(dico[str(int(float(line.strip())))]))
     predout.close()
 
-
 def get_fasta_and_taxid(directory):
     '''finds the 'first' fasta file in directory, and returns a tuple with
     it and the matching named taxid file in the directory if both exist'''
@@ -373,7 +372,13 @@ def predict(model_dir, test_dir, predict_dir, args):
     kmer = args.kmer
     # Finish unpacking args
 
-    fasta, taxids = get_fasta_and_taxid(test_dir)
+    # Don't need to get taxids until eval
+    #fasta, taxids = get_fasta_and_taxid(test_dir)
+    try:
+        fasta = glob.glob(test_dir + "/*.fasta")[0]
+    except:
+        eprint("No fasta file found in: " + test_dir)
+        exit(0)
     model = get_final_model(model_dir)
     dico = os.path.join(model_dir, "vw-dico.txt")
     pattern_file = os.path.join(model_dir, "patterns.txt")
@@ -386,14 +391,12 @@ Predicting using Opal + vowpal-wabbit
 k-mer length:   {kmer}
 ------------------------------------------------
 Fasta input:    {fasta}
-taxids input:   {taxids}
 Model used:     {model}
 Dict used:      {dico}
 LDPC patterns:  {pattern_file}
 ------------------------------------------------'''.format(
     kmer=kmer,
     fasta=fasta,
-    taxids=taxids,
     model=model,
     dico=dico,
     pattern_file=pattern_file)
@@ -405,9 +408,7 @@ LDPC patterns:  {pattern_file}
     # get vw predictions
     fasta2skm_param_list = ["fasta2skm",
         "-i", fasta,
-        "-t", taxids,
         "-k", str(kmer),
-        "-d", dico,
         "-p", pattern_file]
     vw_param_list = ["vw", "-t",
         "-i", model,
@@ -426,15 +427,13 @@ LDPC patterns:  {pattern_file}
     vw_class_to_taxid(prefix + '.preds.vw', dico, prefix + '.preds.taxid')
 
     print('''------------------------------------------------
-Reference file:     {rf}
 Predicted labels:   {pl}
 Total wall clock runtime (sec): {s}
 ================================================'''.format(
-    rf=taxids,
     pl=prefix + '.preds.taxid',
     s=(datetime.now() - starttime).total_seconds()))
     sys.stdout.flush()
-    return (taxids, prefix + '.preds.taxid')
+    return (prefix + '.preds.taxid')
 
 
 def parse_extra(parser, namespace):
@@ -547,35 +546,31 @@ if __name__ == "__main__":
         print("Full simulation")
         print("{:%Y-%m-%d %H:%M:%S}".format(fullstarttime))
         print("Fragment mode: {}".format(not args.do_not_fragment))
-        test_dir = args.test_dir
-        train_dir = args.train_dir
         output_dir = args.out_dir
         frag_dir = os.path.join(output_dir, '1frag')
         model_dir = os.path.join(output_dir, '2model')
         predict_dir = os.path.join(output_dir, '3predict')
         if args.do_not_fragment:
-            train(train_dir, model_dir, args)
-            rf, pf = predict(model_dir, test_dir, predict_dir, args)
+            train(args.train_dir, model_dir, args)
+            pf = predict(model_dir, args.test_dir, predict_dir, args)
+            _, rf = get_fasta_and_taxid(args.test_dir)
         else:
-            frag(test_dir, frag_dir, args)
-            train(train_dir, model_dir, args)
-            rf, pf = predict(model_dir, frag_dir, predict_dir, args)
+            frag(args.test_dir, frag_dir, args)
+            train(args.train_dir, model_dir, args)
+            pf = predict(model_dir, frag_dir, predict_dir, args)
+            _, rf = get_fasta_and_taxid(frag_dir)
+
+        print("Evaluation reference file: " + rf)
+        sys.stdout.flush()
         evaluate_predictions(rf, pf)
         print("Total full sim wall clock runtime (sec): {}".format(
             (datetime.now() - fullstarttime).total_seconds()))
     elif mode == "frag":
-        test_dir = args.test_dir
-        frag_dir = args.frag_dir
-        frag(test_dir, frag_dir, args)
+        frag(args.test_dir, args.frag_dir, args)
     elif mode == "train":
-        train_dir = args.train_dir
-        model_dir = args.model_dir
-        train(train_dir, model_dir, args)
+        train(args.train_dir, args.model_dir, args)
     elif mode == "predict":
-        model_dir = args.model_dir
-        test_dir = args.test_dir
-        predict_dir = args.predict_dir
-        predict(model_dir, test_dir, predict_dir, args)
+        predict(args.model_dir, args.test_dir, args.predict_dir, args)
     elif mode == "eval":
         evaluate_predictions(args.reference_file, args.predicted_labels)
 
