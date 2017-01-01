@@ -232,6 +232,7 @@ def train(ref_dir, model_dir, args):
     coverage = args.coverage
     kmer = args.kmer
     row_weight = args.row_weight
+    hierarchical = args.hierarchical_weight # only comes into play if > 0
     num_hash = args.num_hash
     num_batches = args.num_batches
     num_passes = args.num_passes
@@ -242,6 +243,15 @@ def train(ref_dir, model_dir, args):
 
     fasta, taxids = get_fasta_and_taxid(ref_dir)
     starttime = datetime.now()
+
+    if kmer % row_weight != 0:
+        raise ValueError("Row weight [{}] must divide into k-mer length [{}].".format(row_weight, kmer))
+    if (hierarchical > 0):
+        if kmer % hierarchical != 0:
+            raise ValueError("Hierarchy middle level [{}] must divide into k-mer length [{}].".format(hierarchical, kmer))
+        if hierarchical % row_weight != 0:
+            raise ValueError("Row weight[{}] must divide into middle hierarchical structure weight [{}].".format(row_weight, hierarchical))
+
     print(
     '''================================================
 Training using Opal + vowpal-wabbit
@@ -250,18 +260,20 @@ Training using Opal + vowpal-wabbit
 frag_length = {frag_length}
 coverage:       {coverage}
 k-mer length:   {kmer}
-row weight:     {row_weight}
-num hashes:     {num_hash}
+row weight:     {row_weight}'''.format(
+    frag_length=frag_length,
+    coverage=coverage,
+    kmer=kmer,
+    row_weight=row_weight))
+    if hierarchical > 0:
+        print('''hierarchical:   {}'''.format(hierarchical))
+    print('''num hashes:     {num_hash}
 num batches:    {num_batches}
 num passes:     {num_passes}
 ------------------------------------------------
 Fasta input:    {fasta}
 taxids input:   {taxids}
 ------------------------------------------------'''.format(
-    frag_length=frag_length,
-    coverage=coverage,
-    kmer=kmer,
-    row_weight=row_weight,
     num_hash=num_hash,
     num_batches=num_batches,
     num_passes=num_passes,
@@ -283,7 +295,7 @@ taxids input:   {taxids}
 
     # generate LDPC spaced pattern
     pattern_file = os.path.join(model_dir, "patterns.txt")
-    ldpc.ldpc(k=kmer, t=row_weight, _m=num_hash, d=pattern_file)
+    ldpc.ldpc_write(k=kmer, t=row_weight, _m=num_hash, d=pattern_file)
 
     seed = 42
     for i in range(num_batches):
@@ -487,6 +499,8 @@ def main(argv):
     coverage_arg = ArgClass("-c", "--coverage", help="""number/fraction of
             times each location in a fragment should be covered by a k-mer""",
             type=float, default=1.0)
+    hierarchical_arg = ArgClass("--hierarchical-weight",
+            help="intermediate organization of positions chosen in the k-mer in row_weight; should be a multiple of row_weight and a divisor of k-mer length if set", type=int, default=-1)
     row_weight_arg = ArgClass("--row-weight", help="""the number of positions
             that will be randomly chosen in the contiguous k-mer; k-mer
             length should be a multiple of row_weight""", type=int, default=4)
@@ -524,6 +538,7 @@ def main(argv):
     parser_train.add_argument(*num_passes_arg.args, **num_passes_arg.kwargs)
     parser_train.add_argument(*num_hash_arg.args, **num_hash_arg.kwargs)
     parser_train.add_argument(*row_weight_arg.args, **row_weight_arg.kwargs)
+    parser_train.add_argument(*hierarchical_arg.args, **hierarchical_arg.kwargs)
     parser_train.add_argument(*bits_arg.args, **bits_arg.kwargs)
     parser_train.add_argument(*lambda1_arg.args, **lambda1_arg.kwargs)
     parser_train.add_argument(*lambda2_arg.args, **lambda2_arg.kwargs)
@@ -555,6 +570,7 @@ ranges''', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_simulate.add_argument(*num_passes_arg.args, **num_passes_arg.kwargs)
     parser_simulate.add_argument(*num_hash_arg.args, **num_hash_arg.kwargs)
     parser_simulate.add_argument(*row_weight_arg.args, **row_weight_arg.kwargs)
+    parser_simulate.add_argument(*hierarchical_arg.args, **hierarchical_arg.kwargs)
     parser_simulate.add_argument(*bits_arg.args, **bits_arg.kwargs)
     parser_simulate.add_argument(*lambda1_arg.args, **lambda1_arg.kwargs)
     parser_simulate.add_argument(*lambda2_arg.args, **lambda2_arg.kwargs)
