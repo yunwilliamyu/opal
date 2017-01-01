@@ -259,21 +259,21 @@ Training using Opal + vowpal-wabbit
 '''.format(starttime) + '''
 frag_length = {frag_length}
 coverage:       {coverage}
-k-mer length:   {kmer}
-row weight:     {row_weight}'''.format(
+k-mer length:   {kmer}'''.format(
     frag_length=frag_length,
     coverage=coverage,
-    kmer=kmer,
-    row_weight=row_weight))
+    kmer=kmer))
     if hierarchical > 0:
         print('''hierarchical:   {}'''.format(hierarchical))
-    print('''num hashes:     {num_hash}
+    print('''row weight:     {row_weight}
+num hashes:     {num_hash}
 num batches:    {num_batches}
 num passes:     {num_passes}
 ------------------------------------------------
 Fasta input:    {fasta}
 taxids input:   {taxids}
 ------------------------------------------------'''.format(
+    row_weight=row_weight,
     num_hash=num_hash,
     num_batches=num_batches,
     num_passes=num_passes,
