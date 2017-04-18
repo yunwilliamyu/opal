@@ -23,7 +23,10 @@ util/
     ldpc.py: generate LSH function using LDPC code.
     kseq.h: parse FASTA files
 
-2. Install and test
+2. Install and test:
+    bash SETUP.sh
+
+   Old manual installation:
     1) install
         $ cd util
         $ sh INSTALL.sh
