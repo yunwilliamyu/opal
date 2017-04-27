@@ -1,3 +1,8 @@
+This code is associated with the following manuscript:
+Metagenomic binning through low density hashing. Yunan Luo, Y. William Yu, Jianyang Zeng, Bonnie Berger, and Jian Peng. Submitted for publication.
+
+Upon publication, further information can be found at http://opal.csail.mit.edu/
+
 0. Requirments
     Vowpal Wabbit >= 8.3.0
     scikit-learn
