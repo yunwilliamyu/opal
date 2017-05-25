@@ -7,6 +7,10 @@ Upon publication, further information can be found at http://opal.csail.mit.edu/
     Vowpal Wabbit >= 8.3.0
     scikit-learn
 
+    This code has been tested with GCC 4.8.4 on Ubuntu 14.04 and 16.04, running
+    under Bash 4.3.11. There are reports of compilation errors on Mac OS X, so
+    YMMV.
+
 1. Directory structure
 data/: training and testing data should be given a subfolder here
     A1/: a small size example.
