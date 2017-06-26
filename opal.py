@@ -206,7 +206,7 @@ Total wall clock runtime (sec): {}
     return 0
 
 def train(ref_dir, model_dir, args):
-    '''Draws fragments from the fasta file found in data_dir. Note that
+    '''Draws fragments from the fasta file found in ref_dir. Note that
     there must be a taxid file of the same basename with matching ids for
     each of the fasta lines.
     
