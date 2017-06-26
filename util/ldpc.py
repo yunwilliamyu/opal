@@ -22,11 +22,11 @@ def ldpc(k, t, _m):
     if k % t != 0:
         raise ValueError('k should be multiple of t!')
 
-    m = (int(np.ceil(_m*1.0/(k/t)) + 1)) * (k/t)
-    w = m * t / k
+    m = (int(np.ceil(_m*1.0/(k/t)) + 1)) * (k//t)
+    w = m * t // k
 
-    H_basic = np.zeros((m/w, k), dtype=np.bool)
-    for i in range(m/w):
+    H_basic = np.zeros((m//w, k), dtype=np.bool)
+    for i in range(m//w):
         for j in range(i * t, (i + 1) * t):
             H_basic[i, j] = 1
 
@@ -76,14 +76,14 @@ def write_out(H, d, _m):
     '''
     k = len(H[0])
     t = H[0].sum()
-    m = (int(np.ceil(_m*1.0/(k/t)) + 1)) * (k/t)
-    w = m * t / k
+    m = (int(np.ceil(_m*1.0/(k/t)) + 1)) * (k//t)
+    w = m * t // k
     with open(d, 'w') as fout:    
         fout.write('%d %d\n'%(_m + 1, t))
         for j in range(t):
             fout.write('%d '%(j))
         fout.write('\n')
-        st = m/w
+        st = m//w
         for i in range(_m):
             #sys.stdout.write('%d: '%(i))
             for j in range(k):
