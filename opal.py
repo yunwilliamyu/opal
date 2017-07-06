@@ -358,16 +358,23 @@ taxids input:   {taxids}
         #   vwps.communicate(input='\n'.join(training_list))
         # Because I want to display output as it comes, so have to
         # manually to threading. -ywy 2016-12-28
-        def vw_pipe_writer():
-            vwps.stdin.write('\n'.join(training_list))
-            vwps.stdin.close()
-        thread = threading.Thread(target=vw_pipe_writer)
-        thread.start()
-        while vwps.poll() is None:
-            l = vwps.stdout.readline()
-            sys.stdout.write(l)
-            sys.stdout.flush()
-        thread.join() # This shouldn't be necessary, but just being safe.
+        #
+        # 2017-07-06: On some machines, manual threading fails, so switching
+        # back to using communicate, despite lack of feedback. -ywy
+        if False:
+            def vw_pipe_writer():
+                vwps.stdin.write('\n'.join(training_list))
+                vwps.stdin.close()
+            thread = threading.Thread(target=vw_pipe_writer)
+            thread.start()
+            while vwps.poll() is None:
+                l = vwps.stdout.readline()
+                sys.stdout.write(l)
+                sys.stdout.flush()
+            thread.join() # This shouldn't be necessary, but just being safe.
+        else:
+            out, err = vwps.communicate(input='\n'.join(training_list))
+            print(out)
 
         if i > 0:
             os.remove(prev_model)
