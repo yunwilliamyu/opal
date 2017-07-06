@@ -4,8 +4,11 @@ Metagenomic binning through low density hashing. Yunan Luo, Y. William Yu, Jiany
 Upon publication, further information can be found at http://opal.csail.mit.edu/
 
 0. Requirments
+    Python 2.7 (this code fails on Python 3)
     Vowpal Wabbit >= 8.3.0
-    scikit-learn
+    scikit-learn (sklearn)
+    pandas
+    scipy
 
     This code has been tested with GCC 4.8.4 on Ubuntu 14.04 and 16.04, running
     under Bash 4.3.11. There are reports of compilation errors on Mac OS X, so
