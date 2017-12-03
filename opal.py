@@ -500,19 +500,19 @@ def main(argv):
     # Shared arguments
     frag_length_arg = ArgClass("-l", "--frag-length",
             help="length of fragments to be drawn from fasta",
-            type=int, default=16)
+            type=int, default=64)
     kmer_arg = ArgClass("-k", "--kmer", help="length of k-mers used",
-            type=int, default=8)
+            type=int, default=64)
     coverage_arg = ArgClass("-c", "--coverage", help="""number/fraction of
             times each location in a fragment should be covered by a k-mer""",
-            type=float, default=1.0)
+            type=float, default=15.0)
     hierarchical_arg = ArgClass("--hierarchical-weight",
             help="intermediate organization of positions chosen in the k-mer in row_weight; should be a multiple of row_weight and a divisor of k-mer length if set", type=int, default=-1)
     row_weight_arg = ArgClass("--row-weight", help="""the number of positions
             that will be randomly chosen in the contiguous k-mer; k-mer
-            length should be a multiple of row_weight""", type=int, default=4)
+            length should be a multiple of row_weight""", type=int, default=16)
     num_hash_arg = ArgClass("--num-hash", help="""number of k-mer hashing
-            functions to get features""", type=int, default=1)
+            functions to get features""", type=int, default=8)
     num_batches_arg = ArgClass("--num-batches", help="""Number of times to
             generate a random batch of training data for VW""",
             type=int, default=1)
