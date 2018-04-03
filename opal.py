@@ -161,6 +161,15 @@ def frag(test_dir, frag_dir, args):
     # Finish unpacking args
 
     fasta, taxids = get_fasta_and_taxid(test_dir)
+
+    # Test for taxonomic IDs being single character
+    with open(taxids) as tf:
+        taxid_lines = [line.rstrip('\n') for line in tf]
+        for tl in taxid_lines:
+            if len(tl)==1:
+                raise Exception("Taxonomic IDs cannot be single character strings due to limitations in the Genetic Data Analysis Library string tokenization we use. Please ensure all taxid strings are multicharacter")
+
+
     safe_makedirs(frag_dir)
     fasta_out = os.path.join(frag_dir, "test.fragments.fasta")
     gi2taxid_out = os.path.join(frag_dir, "test.fragments.gi2taxid")
