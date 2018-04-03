@@ -10,17 +10,17 @@ all: drawfrag fasta2vw fasta2skm fasta2sklearn
 	$(CC) $(CFLAGS) $<
 
 drawfrag : drawfrag.o
-	$(CC) -o $@ drawfrag.o -lz -L${GDLDIR}/lib -lgdl -lm
+	$(CC) -o $@ drawfrag.o -lz -L${GDLDIR}/lib -lgdl -lm -static
 
 fasta2vw : fasta2vw.o
-	$(CC) -o $@ fasta2vw.o -lz -L${GDLDIR}/lib -lgdl -lm
+	$(CC) -o $@ fasta2vw.o -lz -L${GDLDIR}/lib -lgdl -lm -static
 
 
 fasta2skm : fasta2skm.o
-	$(CC) -o $@ fasta2skm.o -lz -L${GDLDIR}/lib -lgdl -lm
+	$(CC) -o $@ fasta2skm.o -lz -L${GDLDIR}/lib -lgdl -lm -static
 
 fasta2sklearn: fasta2sklearn.o
-	$(CC) -o $@ fasta2sklearn.o -lz -L${GDLDIR}/lib -lgdl -lm
+	$(CC) -o $@ fasta2sklearn.o -lz -L${GDLDIR}/lib -lgdl -lm -static
 
 clean :
 	rm $(OBJS) drawfrag fasta2vw fasta2skm fasta2sklearn
