@@ -27,6 +27,8 @@ __version__ = "0.9.0"
 import argparse
 import os
 import sys
+if sys.version_info[0] == 3:
+    raise Exception("Python 3 is not compatible; please use Python 2.")
 import glob
 import subprocess
 import random
@@ -35,6 +37,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import precision_score, recall_score
 from datetime import datetime
+
 
 script_loc = os.path.realpath(__file__)
 sys.path.append(os.path.join(os.path.dirname(script_loc),'util'))
