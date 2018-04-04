@@ -14,6 +14,9 @@ Upon publication, further information can be found at http://opal.csail.mit.edu/
     under Bash 4.3.11. There are reports of compilation errors on Mac OS X, so
     YMMV.
 
+    Additionally, while RAM requirements will vary by model size, we recommend
+    at least 32GiB of RAM for running with default options.
+
 1. Directory structure
 data/: training and testing data should be given a subfolder here
     A1/: a small size example.
