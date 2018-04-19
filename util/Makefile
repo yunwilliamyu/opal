@@ -7,20 +7,20 @@ OBJS = drawfrag.o fasta2vw.o fasta2skm.o fasta2sklearn.o
 all: drawfrag fasta2vw fasta2skm fasta2sklearn
 
 .c.o :
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -fPIC $<
 
 drawfrag : drawfrag.o
-	$(CC) -o $@ drawfrag.o -lz -L${GDLDIR}/lib -lgdl -lm -static
+	$(CC) -o $@ drawfrag.o -lz -L${GDLDIR}/lib -lgdl -lm -static -fPIC
 
 fasta2vw : fasta2vw.o
-	$(CC) -o $@ fasta2vw.o -lz -L${GDLDIR}/lib -lgdl -lm -static
+	$(CC) -o $@ fasta2vw.o -lz -L${GDLDIR}/lib -lgdl -lm -static -fPIC
 
 
 fasta2skm : fasta2skm.o
-	$(CC) -o $@ fasta2skm.o -lz -L${GDLDIR}/lib -lgdl -lm -static
+	$(CC) -o $@ fasta2skm.o -lz -L${GDLDIR}/lib -lgdl -lm -static -fPIC
 
 fasta2sklearn: fasta2sklearn.o
-	$(CC) -o $@ fasta2sklearn.o -lz -L${GDLDIR}/lib -lgdl -lm -static
+	$(CC) -o $@ fasta2sklearn.o -lz -L${GDLDIR}/lib -lgdl -lm -static -fPIC
 
 clean :
 	rm $(OBJS) drawfrag fasta2vw fasta2skm fasta2sklearn
