@@ -125,9 +125,10 @@ def evaluate_predictions(reffile, predfile):
     with open(reffile, "r") as fin:
         ref = fin.read().splitlines()
 
-    pred = map(int, pred)
-    ref = map(int, ref)
-    correct = np.equal(pred, ref)
+    #pred = map(int, pred)
+    #ref = map(int, ref)
+    #correct = np.equal(pred, ref)
+    correct = [x==y for x, y in zip(pred,ref)]
 
     perf = pd.DataFrame({"pred":pred, "ref":ref, "correct":correct})
     tmp = perf.groupby("ref")
