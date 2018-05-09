@@ -42,6 +42,7 @@ from datetime import datetime
 script_loc = os.path.realpath(__file__)
 sys.path.append(os.path.join(os.path.dirname(script_loc),'util'))
 import ldpc
+import fasta2skm
 
 my_env = os.environ.copy()
 my_env["PATH"]=(
@@ -339,7 +340,14 @@ taxids input:   {taxids}
         extract_column_two(gi2taxid_batch, taxid_batch)
 
         # learn model
-        fasta2skm_param_list = ["fasta2skm",
+        #fasta2skm_param_list = ["fasta2skm",
+        #    "-i", fasta_batch,
+        #    "-t", taxid_batch,
+        #    "-k", str(kmer),
+        #    "-d", dico,
+        #    "-o", skm_batch,
+        #    "-p", pattern_file]
+        fasta2skm_param_list = [
             "-i", fasta_batch,
             "-t", taxid_batch,
             "-k", str(kmer),
@@ -350,8 +358,10 @@ taxids input:   {taxids}
         sys.stdout.flush()
         #training_list = subprocess.check_output(
         #        fasta2skm_param_list, env=my_env).splitlines()
-        subprocess.check_call(
-                fasta2skm_param_list, env=my_env)
+        #subprocess.check_call(
+        #        fasta2skm_param_list, env=my_env)
+        fasta2skm.main(fasta2skm_param_list)
+
         print("Shuffling training set ...")
         sys.stdout.flush()
         with open(skm_batch) as f:
