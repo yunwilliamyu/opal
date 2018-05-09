@@ -261,10 +261,13 @@ Training using Opal + vowpal-wabbit
 '''.format(starttime) + '''
 frag_length = {frag_length}
 coverage:       {coverage}
+reverse-complements: {reverse}
 k-mer length:   {kmer}'''.format(
     frag_length=frag_length,
     coverage=coverage,
-    kmer=kmer))
+    kmer=kmer,
+    reverse=reverse
+    ))
     if hierarchical > 0:
         print('''hierarchical:   {}'''.format(hierarchical))
     print('''row weight:     {row_weight}
@@ -442,12 +445,14 @@ Fasta input:    {fasta}
 Model used:     {model}
 Dict used:      {dico}
 LDPC patterns:  {pattern_file}
+reverse-complements: {reverse}
 ------------------------------------------------'''.format(
     kmer=kmer,
     fasta=fasta,
     model=model,
     dico=dico,
-    pattern_file=pattern_file)
+    pattern_file=pattern_file,
+    reverse=reverse)
     )
     sys.stdout.flush()
     safe_makedirs(predict_dir)
