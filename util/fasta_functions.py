@@ -3,6 +3,7 @@
 Some shared Python functions for Opal helper scripts.
 '''
 import re
+import string
 
 def fasta_reader(f):
     '''Generator expression that returns a fasta sequence
@@ -40,17 +41,9 @@ def fasta_reader(f):
             else:
                 seq = seq + line.rstrip('\n')
 
-
-complement = {}
-for letter in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ":
-    complement[letter] = letter.upper()
-complement['A']='T'
-complement['T']='A'
-complement['C']='G'
-complement['G']='C'
+trans = string.maketrans('ATGCatgc', 'TACGTACG')
 def reverse_complement(dna):
-    '''Takes the DNA reverse complement, but ignores letters other than ATCG, and fails on non-alphabetical input'''
-    return ''.join([complement[base] for base in dna[::-1]])
+    return dna[::-1].translate(trans)
 
 def get_all_substrings(input_string, k):
     length = len(input_string)
