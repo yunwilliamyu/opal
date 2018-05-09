@@ -136,9 +136,15 @@ def evaluate_predictions(reffile, predfile):
     micro = np.mean(correct)
     macro = np.mean(species)
     median = np.median(species)
-    print("micro = {:.2f}".format(micro*100))
-    print("macro = {:.2f}".format(macro*100))
-    print("median = {:.2f}".format(median*100))
+    print("micro = {:.4f}".format(micro))
+    print("macro = {:.4f}".format(macro))
+    print("median = {:.4f}".format(median))
+
+    #precision = precision_score(ref, pred, average='micro')
+    #recall = recall_score(ref, pred, average='micro')
+    #print("precision = {:.4f}".format(precision))
+    #print("recall    = {:.4f}".format(recall))
+    
     sys.stdout.flush()
 
 
@@ -310,13 +316,14 @@ taxids input:   {taxids}
     pattern_file = os.path.join(model_dir, "patterns.txt")
     ldpc.ldpc_write(k=kmer, t=row_weight, _m=num_hash, d=pattern_file)
 
-    seed = 42
+    seed = 420
     for i in range(num_batches):
         seed = seed + 1
         batch_prefix = os.path.join(model_dir, "train.batch-{}".format(i))
         fasta_batch = batch_prefix + ".fasta"
         gi2taxid_batch = batch_prefix + ".gi2taxid"
         taxid_batch = batch_prefix + ".taxid"
+        skm_batch = batch_prefix + ".skm"
 
         # draw fragments
         subprocess.check_call(["drawfrag",
@@ -337,13 +344,18 @@ taxids input:   {taxids}
             "-t", taxid_batch,
             "-k", str(kmer),
             "-d", dico,
+            "-o", skm_batch,
             "-p", pattern_file]
         print("Getting training set ...")
         sys.stdout.flush()
-        training_list = subprocess.check_output(
-                fasta2skm_param_list, env=my_env).splitlines()
+        #training_list = subprocess.check_output(
+        #        fasta2skm_param_list, env=my_env).splitlines()
+        subprocess.check_call(
+                fasta2skm_param_list, env=my_env)
         print("Shuffling training set ...")
         sys.stdout.flush()
+        with open(skm_batch) as f:
+            training_list = [line.rstrip('\n') for line in f.readlines()]
         random.shuffle(training_list)
         curr_model = model_prefix + "_batch-{}.model".format(i)
         prev_model = model_prefix + "_batch-{}.model".format(i-1) # May not exist if first run
@@ -397,6 +409,7 @@ taxids input:   {taxids}
         os.remove(fasta_batch)
         os.remove(taxid_batch)
         os.remove(gi2taxid_batch)
+        os.remove(skm_batch)
     print('''------------------------------------------------
 Total wall clock runtime (sec): {}
 ================================================'''.format(
