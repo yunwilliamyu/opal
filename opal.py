@@ -171,14 +171,6 @@ def frag(test_dir, frag_dir, args):
 
     fasta, taxids = get_fasta_and_taxid(test_dir)
 
-    # Test for taxonomic IDs being single character
-    with open(taxids) as tf:
-        taxid_lines = [line.rstrip('\n') for line in tf]
-        for tl in taxid_lines:
-            if len(tl)==1:
-                raise Exception("Taxonomic IDs cannot be single character strings due to limitations in the Genetic Data Analysis Library string tokenization we use. Please ensure all taxid strings are multicharacter")
-
-
     safe_makedirs(frag_dir)
     fasta_out = os.path.join(frag_dir, "test.fragments.fasta")
     gi2taxid_out = os.path.join(frag_dir, "test.fragments.gi2taxid")
@@ -471,18 +463,9 @@ LDPC patterns:  {pattern_file}
     prefix = os.path.join(predict_dir, "test.fragments-db")
 
     # get vw predictions
-    #fasta2skm_param_list = ["fasta2skm",
-    #    "-i", fasta,
-    #    "-k", str(kmer),
-    #    "-p", pattern_file]
     vw_param_list = ["vw", "-t",
         "-i", model,
         "-p", prefix + ".preds.vw"]
-    #ps = subprocess.Popen(fasta2skm_param_list, env=my_env, 
-    #        stdout=subprocess.PIPE)
-    #vwps = subprocess.Popen(vw_param_list, env=my_env,
-    #        stdin=ps.stdout, stdout=subprocess.PIPE,
-    #        stderr=subprocess.STDOUT)
     vwps = subprocess.Popen(vw_param_list, env=my_env,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
