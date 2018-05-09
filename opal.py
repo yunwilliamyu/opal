@@ -15,7 +15,7 @@ Technical report HAL-01151453, May, 2015.  This code is included in the util/
 directory, with modifications to enable using the Opal Gallagher code based
 hashes in util/ldpc.py.
 
-The code from Verview, et al, requires the Genetic Data Analysis Library, which
+The code from Vervier, et al, requires the Genetic Data Analysis Library, which
 we have included a copy of under util/ext/ for ease of installation.
 
 This pipeline depends on Python scikit-learn and on Vowpal Wabbit. Vowpal
