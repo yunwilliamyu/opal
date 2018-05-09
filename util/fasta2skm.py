@@ -99,7 +99,6 @@ def main(argv):
     parser.add_argument('-r', '--reverse', help='Take the reverse complements of sequences; fails if non-ACGT sequences provided', action='store_true')
     
     args = parser.parse_args(argv)
-    print(args)
     main_not_commandline(args)
 
 
