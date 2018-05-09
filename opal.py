@@ -46,17 +46,6 @@ import fasta2skm
 import drawfrag
 
 my_env = os.environ.copy()
-my_env["PATH"]=(
-        os.path.join(os.path.dirname(script_loc),'util') + ":" + 
-        os.path.join(os.path.dirname(script_loc),
-                'util','ext','gdl-1.1','GDL','bin') + ":" + 
-        os.path.join(os.path.dirname(script_loc),
-                'util','ext','gdl-1.1','GDL','include') + ":" +
-        my_env.get("PATH", ""))
-my_env["LD_LIBRARY_PATH"]=(
-        os.path.join(os.path.dirname(script_loc),
-                'util','ext','gdl-1.1','GDL','lib') + ":" +
-        my_env.get("LD_LIBRARY_PATH", ""))
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -251,6 +240,7 @@ def train(ref_dir, model_dir, args):
     bits = args.bits
     lambda1 = args.lambda1
     lambda2 = args.lambda2
+    reverse = args.reverse_complement
     # Finish unpacking args
 
     fasta, taxids = get_fasta_and_taxid(ref_dir)
@@ -338,7 +328,7 @@ taxids input:   {taxids}
                 dico=dico,
                 output=skm_batch_fh,
                 pattern=pattern_file,
-                reverse=True)
+                reverse=reverse)
         print("Getting training set ...")
         sys.stdout.flush()
         fasta2skm.main_not_commandline(fasta2skm_namespace)
@@ -428,6 +418,7 @@ def predict(model_dir, test_dir, predict_dir, args):
     '''
     # Unpack args
     kmer = args.kmer
+    reverse = args.reverse_complement
     # Finish unpacking args
 
     # Don't need to get taxids until eval
@@ -476,7 +467,7 @@ LDPC patterns:  {pattern_file}
             dico=None,
             output=vwps.stdin,
             pattern=pattern_file,
-            reverse=True)
+            reverse=reverse)
     fasta2skm.main_not_commandline(fasta2skm_namespace)
     while vwps.poll() is None:
         l = vwps.stdout.readline()
@@ -527,6 +518,8 @@ def main(argv):
     coverage_arg = ArgClass("-c", "--coverage", help="""number/fraction of
             times each location in a fragment should be covered by a k-mer""",
             type=float, default=15.0)
+    reverse_complement_arg = ArgClass("-r", "--reverse-complement", help="""Also trains and evaluates on reverse complements of ACGT DNA strings""",
+            action="store_true")
     hierarchical_arg = ArgClass("--hierarchical-weight",
             help="intermediate organization of positions chosen in the k-mer in row_weight; should be a multiple of row_weight and a divisor of k-mer length if set", type=int, default=-1)
     row_weight_arg = ArgClass("--row-weight", help="""the number of positions
@@ -562,6 +555,7 @@ def main(argv):
     parser_train.add_argument(*frag_length_arg.args, **frag_length_arg.kwargs)
     parser_train.add_argument(*coverage_arg.args, **coverage_arg.kwargs)
     parser_train.add_argument(*kmer_arg.args, **kmer_arg.kwargs)
+    parser_train.add_argument(*reverse_complement_arg.args, **reverse_complement_arg.kwargs)
     parser_train.add_argument(*num_batches_arg.args, **num_batches_arg.kwargs)
     parser_train.add_argument(*num_passes_arg.args, **num_passes_arg.kwargs)
     parser_train.add_argument(*num_hash_arg.args, **num_hash_arg.kwargs)
@@ -576,6 +570,7 @@ def main(argv):
     parser_predict.add_argument("model_dir", help="Input directory for VW model")
     parser_predict.add_argument("test_dir", help="Input directory for already fragmented test data")
     parser_predict.add_argument("predict_dir", help="Output directory for predictions")
+    parser_predict.add_argument(*reverse_complement_arg.args, **reverse_complement_arg.kwargs)
     parser_predict.add_argument(*kmer_arg.args, **kmer_arg.kwargs)
 
     parser_eval = subparsers.add_parser('eval', help="Evaluate quality of predictions given a reference",
@@ -594,6 +589,7 @@ ranges''', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_simulate.add_argument(*frag_length_arg.args, **frag_length_arg.kwargs)
     parser_simulate.add_argument(*coverage_arg.args, **coverage_arg.kwargs)
     parser_simulate.add_argument(*kmer_arg.args, **kmer_arg.kwargs)
+    parser_simulate.add_argument(*reverse_complement_arg.args, **reverse_complement_arg.kwargs)
     parser_simulate.add_argument(*num_batches_arg.args, **num_batches_arg.kwargs)
     parser_simulate.add_argument(*num_passes_arg.args, **num_passes_arg.kwargs)
     parser_simulate.add_argument(*num_hash_arg.args, **num_hash_arg.kwargs)

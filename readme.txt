@@ -31,24 +31,13 @@ data/: training and testing data should be given a subfolder here
                 We need to first simulated test data by randomly drawing fragments 
                 from these fasta records (see below).
 util/
-    ext/: external libararies.
-    test/: test drawfrag.c and fasta2skm.c
-    drawfrag.c: draw fragments from fasta records.
-    fasta2skm.c: construct feature (spaced k-mer profile), and convert to VW input format.
+    drawfrag.py: draw fragments from fasta records.
+    fasta2skm.py: construct feature (spaced k-mer profile), and convert to VW input format.
     ldpc.py: generate LSH function using LDPC code.
-    kseq.h: parse FASTA files
+    fasta_functions.py: parse FASTA files
 
 2. Install and test:
-    bash SETUP.sh
-
-   Old manual installation:
-    1) install
-        $ cd util
-        $ sh INSTALL.sh
-    2) test
-        $ cd util/test
-        $ sh test_skm.sh
-        Results will be saved in output/
+    bash SETUP.sh (just downloads some data files to play with)
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
@@ -109,6 +98,6 @@ Contact
     Yun William Yu, contact@yunwilliamyu.net (author of Python rewrite)
 
 Acknowledgement
-    This implementation of Opal is adapted from the source code of the following paper:
+    This implementation of Opal is a complete reimplementation based on the ideas and software from the following paper:
     K. Vervier, P. Mahe, M. Tournoud, J.-B. Veyrieras, and J.-P. Vert. Large-scale Machine Learning for Metagenomics Sequence Classification , Technical report HAL-01151453, May, 2015.
 
