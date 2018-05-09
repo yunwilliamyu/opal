@@ -43,6 +43,7 @@ script_loc = os.path.realpath(__file__)
 sys.path.append(os.path.join(os.path.dirname(script_loc),'util'))
 import ldpc
 import fasta2skm
+import drawfrag
 
 my_env = os.environ.copy()
 my_env["PATH"]=(
@@ -205,15 +206,14 @@ taxids output:  {taxid_out}'''.format(
     # set seed (for reproducibility)
     seed = 42
     # draw fragments
-    subprocess.check_call(["drawfrag",
+    drawfrag.main([
         "-i", fasta,
         "-t", taxids,
         "-l", str(frag_length),
         "-c", str(coverage),
         "-o", fasta_out,
         "-g", gi2taxid_out,
-        "-s", str(seed)],
-        env=my_env)
+        "-s", str(seed)])
 
     # extract taxids
     extract_column_two(gi2taxid_out, taxid_out)
@@ -327,40 +327,30 @@ taxids input:   {taxids}
         skm_batch = batch_prefix + ".skm"
 
         # draw fragments
-        subprocess.check_call(["drawfrag",
+        drawfrag.main([
             "-i", fasta,
             "-t", taxids,
             "-l", str(frag_length),
             "-c", str(coverage),
             "-o", fasta_batch,
             "-g", gi2taxid_batch,
-            "-s", str(seed)],
-            env=my_env)
+            "-s", str(seed)])
         # extract taxids
         extract_column_two(gi2taxid_batch, taxid_batch)
 
-        # learn model
-        #fasta2skm_param_list = ["fasta2skm",
-        #    "-i", fasta_batch,
-        #    "-t", taxid_batch,
-        #    "-k", str(kmer),
-        #    "-d", dico,
-        #    "-o", skm_batch,
-        #    "-p", pattern_file]
-        fasta2skm_param_list = [
-            "-i", fasta_batch,
-            "-t", taxid_batch,
-            "-k", str(kmer),
-            "-d", dico,
-            "-o", skm_batch,
-            "-p", pattern_file]
+        skm_batch_fh = open(skm_batch, 'w')
+        fasta2skm_namespace = argparse.Namespace(
+                input=fasta_batch,
+                taxid=taxid_batch,
+                kmer=kmer,
+                dico=dico,
+                output=skm_batch_fh,
+                pattern=pattern_file,
+                reverse=True)
         print("Getting training set ...")
         sys.stdout.flush()
-        #training_list = subprocess.check_output(
-        #        fasta2skm_param_list, env=my_env).splitlines()
-        #subprocess.check_call(
-        #        fasta2skm_param_list, env=my_env)
-        fasta2skm.main(fasta2skm_param_list)
+        fasta2skm.main_not_commandline(fasta2skm_namespace)
+        skm_batch_fh.close()
 
         print("Shuffling training set ...")
         sys.stdout.flush()
@@ -481,18 +471,30 @@ LDPC patterns:  {pattern_file}
     prefix = os.path.join(predict_dir, "test.fragments-db")
 
     # get vw predictions
-    fasta2skm_param_list = ["fasta2skm",
-        "-i", fasta,
-        "-k", str(kmer),
-        "-p", pattern_file]
+    #fasta2skm_param_list = ["fasta2skm",
+    #    "-i", fasta,
+    #    "-k", str(kmer),
+    #    "-p", pattern_file]
     vw_param_list = ["vw", "-t",
         "-i", model,
         "-p", prefix + ".preds.vw"]
-    ps = subprocess.Popen(fasta2skm_param_list, env=my_env, 
-            stdout=subprocess.PIPE)
+    #ps = subprocess.Popen(fasta2skm_param_list, env=my_env, 
+    #        stdout=subprocess.PIPE)
+    #vwps = subprocess.Popen(vw_param_list, env=my_env,
+    #        stdin=ps.stdout, stdout=subprocess.PIPE,
+    #        stderr=subprocess.STDOUT)
     vwps = subprocess.Popen(vw_param_list, env=my_env,
-            stdin=ps.stdout, stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
+    fasta2skm_namespace = argparse.Namespace(
+            input=fasta,
+            taxid=None,
+            kmer=kmer,
+            dico=None,
+            output=vwps.stdin,
+            pattern=pattern_file,
+            reverse=True)
+    fasta2skm.main_not_commandline(fasta2skm_namespace)
     while vwps.poll() is None:
         l = vwps.stdout.readline()
         sys.stdout.write(l)
