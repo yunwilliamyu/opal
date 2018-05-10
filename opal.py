@@ -303,15 +303,38 @@ taxids input:   {taxids}
     ldpc.ldpc_write(k=kmer, t=row_weight, _m=num_hash, d=pattern_file)
 
     seed = 420
+    final_model_file = model_prefix + "_final.model"
+    # Initialize Vowpal_Wabbit model
+    vw_params_base = ["vw",
+        "--random_seed", str(seed),
+        "-f", final_model_file,
+        "--save_resume",
+        "--oaa", str(num_labels),
+        "--bit_precision", str(bits),
+        "--l1", str(lambda1),
+        "--l2", str(lambda2)]
+    vw_params_passes = [
+        "--cache_file", model_prefix + ".cache",
+        "--passes", str(num_passes)]
+    vw_params = vw_params_base
+    if num_passes > 1:
+        vw_params = vw_params + vw_params_passes
+
+    vwps_training_log = model_prefix + "_vwps.log"
+    vwps_log_fh_write = open(vwps_training_log, 'w')
+    vwps_log_fh_tail = open(vwps_training_log, 'r')
+    vwps = subprocess.Popen(vw_params, env=my_env,
+            stdin=subprocess.PIPE, stdout=vwps_log_fh_write,
+            stderr=vwps_log_fh_write)
     for i in range(num_batches):
         seed = seed + 1
         batch_prefix = os.path.join(model_dir, "train.batch-{}".format(i))
         fasta_batch = batch_prefix + ".fasta"
         gi2taxid_batch = batch_prefix + ".gi2taxid"
         taxid_batch = batch_prefix + ".taxid"
-        skm_batch = batch_prefix + ".skm"
 
         # draw fragments
+        print("Drawing fragments for batch {}".format(i))
         drawfrag.main([
             "-i", fasta,
             "-t", taxids,
@@ -323,78 +346,42 @@ taxids input:   {taxids}
         # extract taxids
         extract_column_two(gi2taxid_batch, taxid_batch)
 
-        skm_batch_fh = open(skm_batch, 'w')
         fasta2skm_namespace = argparse.Namespace(
                 input=fasta_batch,
                 taxid=taxid_batch,
                 kmer=kmer,
                 dico=dico,
-                output=skm_batch_fh,
+                output=None,
                 pattern=pattern_file,
                 reverse=reverse)
         print("Getting training set ...")
         sys.stdout.flush()
-        fasta2skm.main_not_commandline(fasta2skm_namespace)
-        skm_batch_fh.close()
+        skms = fasta2skm.main_generator(fasta2skm_namespace)
+        training_list = [line.rstrip('\n') for line in skms]
 
         print("Shuffling training set ...")
         sys.stdout.flush()
-        with open(skm_batch) as f:
-            training_list = [line.rstrip('\n') for line in f.readlines()]
         random.shuffle(training_list)
-        curr_model = model_prefix + "_batch-{}.model".format(i)
-        prev_model = model_prefix + "_batch-{}.model".format(i-1) # May not exist if first run
-        vw_param_base = ["vw",
-            "--random_seed", str(seed),
-            "-f", curr_model,
-            "--cache_file", batch_prefix + ".cache",
-            "--passes", str(num_passes),
-            "--save_resume"]
-        vw_param_firstrun = [
-            "--oaa", str(num_labels),
-            "--bit_precision", str(bits),
-            "--l1", str(lambda1),
-            "--l2", str(lambda2)]
-        if i > 0:
-            vw_param_list = vw_param_base + ["-i", prev_model]
-        else:
-            vw_param_list = vw_param_base + vw_param_firstrun
-        print(vw_param_list)
-        sys.stdout.flush()
-        vwps = subprocess.Popen(vw_param_list, env=my_env,
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
-        # Cannot use
-        #   vwps.communicate(input='\n'.join(training_list))
-        # Because I want to display output as it comes, so have to
-        # manually to threading. -ywy 2016-12-28
-        #
-        # 2017-07-06: On some machines, manual threading fails, so switching
-        # back to using communicate, despite lack of feedback. -ywy
-        if False:
-            def vw_pipe_writer():
-                vwps.stdin.write('\n'.join(training_list))
-                vwps.stdin.close()
-            thread = threading.Thread(target=vw_pipe_writer)
-            thread.start()
-            while vwps.poll() is None:
-                l = vwps.stdout.readline()
-                sys.stdout.write(l)
-                sys.stdout.flush()
-            thread.join() # This shouldn't be necessary, but just being safe.
-        else:
-            out, err = vwps.communicate(input='\n'.join(training_list))
-            print(out)
-
-        if i > 0:
-            os.remove(prev_model)
-        if i == num_batches - 1:
-            os.rename(curr_model, model_prefix + "_final.model")
-        os.remove(batch_prefix + ".cache")
+        print("Sending data to vowpal_wabbit ...")
+        batch_i = 0
+        for item in training_list:
+            vwps.stdin.write("{}\n".format(item))
+            batch_i = batch_i + 1
+            if batch_i % 100000 == 0:
+                latest_data = vwps_log_fh_tail.read()
+                if latest_data:
+                    print(latest_data, end="")
+        latest_data =vwps_log_fh_tail.read()
+        if latest_data:
+            print(latest_data, end="")
         os.remove(fasta_batch)
         os.remove(taxid_batch)
         os.remove(gi2taxid_batch)
-        os.remove(skm_batch)
+    vwps_log_fh_tail.close()
+    vwps_log_fh_write.close()
+    vwps.stdin.close()
+    #print("vowpal_wabbit running with to-be-saved model: {}".format(final_model_file))
+    vwps.wait()
     print('''------------------------------------------------
 Total wall clock runtime (sec): {}
 ================================================'''.format(
@@ -457,30 +444,45 @@ reverse-complements: {reverse}
     sys.stdout.flush()
     safe_makedirs(predict_dir)
     prefix = os.path.join(predict_dir, "test.fragments-db")
+    prediction_file = prefix + ".preds.vw"
 
     # get vw predictions
     vw_param_list = ["vw", "-t",
         "-i", model,
         "-p", prefix + ".preds.vw"]
+    vwps_training_log = prefix + "_vwps.log"
+    vwps_log_fh_write = open(vwps_training_log, 'w')
+    vwps_log_fh_tail = open(vwps_training_log, 'r')
     vwps = subprocess.Popen(vw_param_list, env=my_env,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT)
+            stdin=subprocess.PIPE, stdout=vwps_log_fh_write,
+            stderr=vwps_log_fh_write)
     fasta2skm_namespace = argparse.Namespace(
             input=fasta,
             taxid=None,
             kmer=kmer,
             dico=None,
-            output=vwps.stdin,
+            output=None,
             pattern=pattern_file,
             reverse=reverse)
-    fasta2skm.main_not_commandline(fasta2skm_namespace)
-    while vwps.poll() is None:
-        l = vwps.stdout.readline()
-        sys.stdout.write(l)
-        sys.stdout.flush()
+    skms = fasta2skm.main_generator(fasta2skm_namespace)
+    batch_i = 0
+    for item in skms:
+        vwps.stdin.write("{}".format(item))
+        batch_i = batch_i + 1
+        if batch_i % 100000 == 0:
+            latest_data = vwps_log_fh_tail.read()
+            if latest_data:
+                print(latest_data, end="")
+    latest_data =vwps_log_fh_tail.read()
+    if latest_data:
+        print(latest_data, end="")
+    vwps_log_fh_tail.close()
+    vwps_log_fh_write.close()
+    vwps.stdin.close()
+    vwps.wait()
 
     # Convert back to standard taxonomic IDs instead of IDs
-    vw_class_to_taxid(prefix + '.preds.vw', dico, prefix + '.preds.taxid')
+    vw_class_to_taxid(prediction_file, dico, prefix + '.preds.taxid')
 
     print('''------------------------------------------------
 Predicted labels:   {pl}
