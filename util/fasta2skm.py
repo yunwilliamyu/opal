@@ -43,8 +43,11 @@ def update_dictionary(labels, dico_file):
             df.write("{}\t{}\n".format(label, vwid))
     return label2vwid
 
-def main_not_commandline(args):
-    '''All the main code except for the parser'''
+def main_generator(args):
+    '''Yields a generator with the next skm
+    
+    Does not send to output.
+    '''
     if not args.input or not args.kmer:
         raise ValueError("fasta2skm requires input and kmer arguments")
 
@@ -62,7 +65,7 @@ def main_not_commandline(args):
     else:
         file_contents = None
     pattern_getters = create_pattern_getters(file_contents, args.kmer)
-    
+
     if args.taxid:
         taxid_file = open(args.taxid, 'r')
         labels = (label2vwid[l.rstrip('\n')] for l in taxid_file)
@@ -75,11 +78,16 @@ def main_not_commandline(args):
             if args.reverse:
                 feature_list.extend(gen_features(pattern_getters, reverse_complement(seq), args.kmer))
             features = " ".join(feature_list)
-            args.output.write('{} | {}\n'.format(labels.next(), features))
-    args.output.close()
-
+            yield '{} | {}\n'.format(labels.next(), features)
     if args.taxid:
         taxid_file.close()
+
+def main_not_commandline(args):
+    '''All the main code except for the parser'''
+    gen = main_generator(args)
+    with open (args.output, 'w') as f:
+        for line in gen:
+            f.write(line)
 
 def main(argv):
     parser = argparse.ArgumentParser(
