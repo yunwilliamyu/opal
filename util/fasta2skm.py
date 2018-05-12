@@ -85,9 +85,13 @@ def main_generator(args):
 def main_not_commandline(args):
     '''All the main code except for the parser'''
     gen = main_generator(args)
-    with open (args.output, 'w') as f:
+    if args.output != "-":
+        with open (args.output, 'w') as f:
+            for line in gen:
+                f.write(line)
+    else:
         for line in gen:
-            f.write(line)
+            sys.stdout.write(line)
 
 def main(argv):
     parser = argparse.ArgumentParser(
@@ -103,7 +107,7 @@ def main(argv):
         (created if does not exist; possibly updated and overwritten if exists)
         (must be specified if --taxid option is used)
         (useless if --taxid option is not used)''')
-    parser.add_argument('-o', '--output', help='output file', type=argparse.FileType('w'), default='-')
+    parser.add_argument('-o', '--output', help='output file', default='-')
     parser.add_argument('-r', '--reverse', help='Take the reverse complements of sequences; fails if non-ACGT sequences provided', action='store_true')
     
     args = parser.parse_args(argv)
