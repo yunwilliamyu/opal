@@ -1,7 +1,7 @@
 This code is associated with the following manuscript:
-Metagenomic binning through low density hashing. Yunan Luo, Y. William Yu, Jianyang Zeng, Bonnie Berger, and Jian Peng. Submitted for publication.
+Metagenomic binning through low density hashing. Yunan Luo, Yun William Yu, Jianyang Zeng, Bonnie Berger, and Jian Peng. Submitted for publication.
 
-Upon publication, further information can be found at http://opal.csail.mit.edu/
+Further information can be found at http://opal.csail.mit.edu/
 
 0. Requirments
     Python 2.7 (this code fails on Python 3)
@@ -10,9 +10,8 @@ Upon publication, further information can be found at http://opal.csail.mit.edu/
     pandas
     scipy
 
-    This code has been tested with GCC 4.8.4 on Ubuntu 14.04 and 16.04, running
-    under Bash 4.3.11. There are reports of compilation errors on Mac OS X, so
-    YMMV.
+    This code has been tested on Ubuntu 14.04 and 16.04, running
+    under Bash 4.3.11.
 
     Additionally, while RAM requirements will vary by model size, we recommend
     at least 32GiB of RAM for running with default options.
@@ -43,9 +42,11 @@ util/
 
 Modes:
     (default --optional-arguments such as k-mer length, fragment size,
-    hash functions, etc. are set for quick run, and so will give terrible
-    predictions. If you're actually going to use for training, be sure to
-    set better parameters.)
+    hash functions, etc. are set a single batch, and so will use too much
+    RAM for extremely large training sets. For training larger data sets,
+    be sure to set num-batches and coverage per batch.)
+    (Also, use "-r" to enable reverse complements for ACGT genomic sequence
+    data. Otherwise, the sequence is treated as simple text.)
 
     1) ./opal.py frag [--optional-arguments] test_dir frag_dir [-h]
 
