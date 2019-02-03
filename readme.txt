@@ -104,7 +104,7 @@ util/
     Create output directory:
         mkdir out_dir
         ./opal.py train data/A1/train out_dir/2model -c15 -r --frag-length=200
-        ./opal.py predict out_dir/2model data/A1/test -r
+        ./opal.py predict out_dir/2model data/A1/test out_dir/3predict -r
         ./opal.py eval data/A1/test/A1.test.taxid out_dir/3predict/test.fragments-db.preds.taxid
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
