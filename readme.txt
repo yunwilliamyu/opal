@@ -101,11 +101,37 @@ util/
     follow the following pipeline. To duplicate the experiment we ran for Opal
     in Figure 3 of our paper on the A1 dataset, you'll want to do the following:
 
+    We will start with:
+        data/A1/train/A1.train.fasta: each Fasta entry in the file is a genome
+        data/A1/train/A1.train.taxid: each line corresponds to the taxid of the fasta entries
+
+        data/A1/test/A1.test.fasta: each Fasta entry is a read to be classified
+        data/A1/test/A1.test.taxid: each line is the ground-truth taxid. Obviously,
+            we only have the ground truth because this is a benchmark.
+
     Create output directory:
         mkdir out_dir
+
+    Train on the given genomes, drawing fragments of length 200, and setting coverage=15.
         ./opal.py train data/A1/train out_dir/2model -c15 -r --frag-length=200
+
+    Predict on the test data:
         ./opal.py predict out_dir/2model data/A1/test out_dir/3predict -r
+
+    Evaluate the predicted assignments:
         ./opal.py eval data/A1/test/A1.test.taxid out_dir/3predict/test.fragments-db.preds.taxid
+
+    For other evaluations (e.g. F1-score), the predicted taxids are just in the file
+        out_dir/3predict/test.fragments-db.preds.taxid
+    So they can be compared using whatever accuracy measure we desire.
+
+    Note that the results may differ slightly from the paper itself because of
+    both updates to the code since running our original experiments and the
+    randomness involved in the training process.
+
+    Also, the training process can be extremely slow, and can take many hours.
+    This is of course why we provide the much faster commands above for
+    playing with the code.
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
