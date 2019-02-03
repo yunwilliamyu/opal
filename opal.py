@@ -22,7 +22,7 @@ This pipeline depends on Python scikit-learn and on Vowpal Wabbit. Vowpal
 Wabbit must be properly installed in the system path.
 '''
 from __future__ import print_function
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 
 import argparse
 import os

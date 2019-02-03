@@ -4,7 +4,7 @@ Metagenomic binning through low density hashing. Yunan Luo, Yun William Yu, Jian
 Further information can be found at http://opal.csail.mit.edu/
 
 0. Requirments
-    Vowpal Wabbit >= 8.3.0 (the command-line program must be installed)
+    Vowpal Wabbit >= 8.1.1 (the command-line program must be installed)
 
     Python 2.7 (this code fails on Python 3)
     Python packages:
@@ -37,14 +37,44 @@ util/
     fasta_functions.py: parse FASTA files
 
 2. Install and test:
-    The setup script will test your environment for dependencies and download some example data files to play with.
-    It will fail when it does not find a required dependency, and give instructions for how to install them.
-        bash SETUP.sh
-
-    Alternately, you may simply ensure that all dependencies are installed in advance. On Ubuntu, you can do:
+    You must ensure that all dependencies are installed. On Ubuntu, you can do:
         sudo apt-get install vowpal-wabbit python-pip
         pip install pandas, sklearn
     Note that you must install the command-line version of vowpal-wabbit, as Opal depends on the "vw" command.
+
+    Altenrately, the provided  setup script will test your environment for
+    dependencies and download some example data files to play with.
+    It will fail when it does not find a required dependency, and give
+    instructions for how to install them.
+        bash SETUP.sh
+
+    To test Opal after setup if you downloaded the example data files using SETUP.sh:
+        ./opal.py simulate data/A1/test data/A1/train out_dir
+    Note that this may take a very long time to train, so you may change the coverage
+    to have a quicker (but horrendously inaccurate test of the pipeline as follows):
+        ./opal.py simulate data/A1/test data/A1/train out_dir -c0.1
+    (default is -c15, for a coverage of 15)
+
+    The simulate command is equivalent to the following mult-step process with
+    an optional -c0.1 for fast but inaccurate results. (default is -c15)
+    Create output directory:
+        mkdir out_dir
+
+    Fragmentation to prepare the fragmented testing data (not used for training):
+        ./opal.py frag data/A1/test out_dir/1frag [-c0.1]
+    
+    Training based on the training directory fasta:
+        ./opal.py train data/A1/train out_dir/2model [-c0.1]
+
+    Predicting examples from the fasta file found in the test directory:
+        ./opal.py predict out_dir/2model data/A1/test out_dir/3predict
+
+    Evaulating the accuracy of the predicted assignments:
+        ./opal.py eval data/A1/test/A1.test.taxid out_dir/3predict/test.fragments-db.preds.taxid
+
+    As an aside, if you are classifying DNA, you will probably want the "-r" argument on everything
+    to also treat reverse complements as the same. We do not use it by default for backwards compatability
+    since some users use Opal on protein sequences.
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 

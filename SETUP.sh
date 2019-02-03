@@ -42,12 +42,12 @@ echo ========================================
 echo Testing dependency: vowpal-wabbit command \'vw\'
 if [ -x "$(command -v vw)" ]; then
     echo "vowpal-wabbit found. Testing version..."
-    vercomp $(vw --version) 8.3.0
+    vercomp $(vw --version) 8.1.1
     code=$?
     if [ "$code" -eq 0 ] || [ "$code" -eq 1 ]; then
-        echo "vowpal-wabbit version >=8.3.0 found."
+        echo "vowpal-wabbit version >=8.1.1 found."
     else
-		echo "ERROR: vowpal-wabbit version <8.3.0. Please update."
+		echo "ERROR: vowpal-wabbit version <8.1.1. Please update."
         echo "e.g. on Ubuntu, run \"sudo apt-get install vowpal-wabbit\"."
         echo "On other OS, see install instructions here: https://github.com/VowpalWabbit/vowpal_wabbit"
         echo "Note: Python pip package vowpalwabbit does not install the vw command, so will not work."
@@ -82,7 +82,7 @@ echo ========================================
 echo Downloading and extracting example datasets
 echo ========================================
 if [ ! -f data/examples.installed ]; then
-    wget http://giant.csail.mit.edu/opal/data.tar.bz2  || curl -O  http://giant.csail.mit.edu/opal/data.tar.bz2
+    wget -c http://giant.csail.mit.edu/opal/data.tar.bz2  || curl -O  http://giant.csail.mit.edu/opal/data.tar.bz2
     tar -xjf data.tar.bz2
     rm data.tar.bz2
     touch data/examples.installed
