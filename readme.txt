@@ -131,8 +131,9 @@ util/
     randomness involved in the training process.
 
     Also, the training process can be extremely slow, and can take many hours.
-    This is of course why we provide the much faster commands above for
-    playing with the code.
+    On our test machine, the above pipeline takes around 4 hours to complete.
+    This is of course why we provide the much faster commands above for playing
+    with the code.
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
