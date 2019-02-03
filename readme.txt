@@ -37,6 +37,10 @@ util/
     fasta_functions.py: parse FASTA files
 
 2. Install and test:
+    First download and expand Opal to a working directory:
+        git clone https://github.com/yunwilliamyu/opal.git
+        cd opal
+
     You must ensure that all dependencies are installed. On Ubuntu, you can do:
         sudo apt-get install vowpal-wabbit python-pip
         pip install pandas, sklearn
