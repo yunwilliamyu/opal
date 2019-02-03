@@ -1,5 +1,5 @@
 This code is associated with the following manuscript:
-Metagenomic binning through low density hashing. Yunan Luo, Yun William Yu, Jianyang Zeng, Bonnie Berger, and Jian Peng. Submitted for publication.
+Yunan Luo, Yun William Yu, Jianyang Zeng, Bonnie Berger, Jian Peng; Metagenomic binning through low-density hashing, Bioinformatics, Volume 35, Issue 2, 15 January 2019, Pages 219–226, https://doi.org/10.1093/bioinformatics/bty611
 
 Further information can be found at http://opal.csail.mit.edu/
 
@@ -49,14 +49,31 @@ util/
         bash SETUP.sh
 
     To test Opal after setup if you downloaded the example data files using SETUP.sh:
-        ./opal.py simulate data/A1/test data/A1/train out_dir
+        ./opal.py simulate data/A1/test data/A1/train out_dir -r
     Note that this may take a very long time to train, so you may change the coverage
     to have a quicker (but horrendously inaccurate test of the pipeline as follows):
-        ./opal.py simulate data/A1/test data/A1/train out_dir -c0.1
-    (default is -c15, for a coverage of 15)
+        ./opal.py simulate data/A1/test data/A1/train out_dir -r -c0.1
 
-    The simulate command is equivalent to the following mult-step process with
-    an optional -c0.1 for fast but inaccurate results. (default is -c15)
+    For context, the coverage parameter -c is the most important one,
+    controlling how much training data the model is given. A coverage parameter
+    of 1 implies that on average every position in the original fasta file is
+    covered by one training example. Similarly, coverage of 10 implies every
+    position is covered by 10 training examples, and coverage of 0.1 implies
+    that you expect only 10% of positions to be covered by training examples.
+    All else held equal, increasing the coverage parameter will increase the
+    accuracy, though at the cost of longer training times. For most cases,
+    setting a coverage of 15 (-c15) gives reasonable accuracy, though if you
+    wish to do subspecies classification, you may need a much higher coverage
+    level, depending on how closely related your strains are. (See paper for
+    more details)
+
+    As an aside, if you are classifying DNA, you will probably also want the
+    "-r" argument on everything to also treat reverse complements as the same.
+    We do not use it by default for backwards compatability since some users
+    use Opal on protein sequences, for which reverse complements are not
+    defined or meaningful.
+
+    The simulate command is equivalent to the following mult-step process:
     Create output directory:
         mkdir out_dir
 
@@ -64,17 +81,14 @@ util/
         ./opal.py frag data/A1/test out_dir/1frag [-c0.1]
     
     Training based on the training directory fasta:
-        ./opal.py train data/A1/train out_dir/2model [-c0.1]
+        ./opal.py train data/A1/train out_dir/2model [-c0.1] [-r]
 
     Predicting examples from the fasta file found in the test directory:
-        ./opal.py predict out_dir/2model data/A1/test out_dir/3predict
+        ./opal.py predict out_dir/2model data/A1/test out_dir/3predict [-r]
 
     Evaulating the accuracy of the predicted assignments:
         ./opal.py eval data/A1/test/A1.test.taxid out_dir/3predict/test.fragments-db.preds.taxid
 
-    As an aside, if you are classifying DNA, you will probably want the "-r" argument on everything
-    to also treat reverse complements as the same. We do not use it by default for backwards compatability
-    since some users use Opal on protein sequences.
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
