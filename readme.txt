@@ -69,7 +69,8 @@ util/
     setting a coverage of 15 (-c15) gives reasonable accuracy, though if you
     wish to do subspecies classification, you may need a much higher coverage
     level, depending on how closely related your strains are. (See paper for
-    more details)
+    more details). For *very* high coverage (e.g. 1000), we recommend running
+    in multiple batches. Instead of "-c1000", use "-c1 --num-batches=1000".
 
     As an aside, if you are classifying DNA, you will probably also want the
     "-r" argument on everything to also treat reverse complements as the same.

@@ -519,7 +519,7 @@ def main(argv):
     # Shared arguments
     frag_length_arg = ArgClass("-l", "--frag-length",
             help="length of fragments to be drawn from fasta",
-            type=int, default=64)
+            type=int, default=200)
     kmer_arg = ArgClass("-k", "--kmer", help="length of k-mers used",
             type=int, default=64)
     coverage_arg = ArgClass("-c", "--coverage", help="""number/fraction of
