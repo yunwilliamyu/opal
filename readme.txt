@@ -112,8 +112,9 @@ util/
     Create output directory:
         mkdir out_dir
 
-    Train on the given genomes, drawing fragments of length 200, and setting coverage=15.
-        ./opal.py train data/A1/train out_dir/2model -c15 -r --frag-length=200
+    Train on the given genomes, drawing fragments of length 200, and setting coverage=15
+    (by combining -c1 and --num-batches=15).
+        ./opal.py train data/A1/train out_dir/2model -c1 --num-batches=15 -r --frag-length=200
 
     Predict on the test data:
         ./opal.py predict out_dir/2model data/A1/test out_dir/3predict -r
