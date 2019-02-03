@@ -89,11 +89,23 @@ util/
         ./opal.py train data/A1/train out_dir/2model [-c0.1] [-r]
 
     Predicting examples from the fasta file found in the test directory:
-        ./opal.py predict out_dir/2model data/A1/test out_dir/3predict [-r]
+        ./opal.py predict out_dir/2model out_dir/1frag out_dir/3predict [-r]
 
     Evaulating the accuracy of the predicted assignments:
-        ./opal.py eval data/A1/test/A1.test.taxid out_dir/3predict/test.fragments-db.preds.taxid
+        ./opal.py eval out_dir/1frag/test.fragments.taxid out_dir/3predict/test.fragments-db.preds.taxid
 
+    Note that we fragment the testing data because for the simulation, we
+    accept fasta files consisting of entire genomes, so we must fragment it in
+    order to get test reads. If you are evaluating the Fasta files from an NGS
+    pipeline, or benchmarking against a real dataset, you will probably want to
+    follow the following pipeline. To duplicate the experiment we ran for Opal
+    in Figure 3 of our paper on the A1 dataset, you'll want to do the following:
+
+    Create output directory:
+        mkdir out_dir
+        ./opal.py train data/A1/train out_dir/2model -c15 -r --frag-length=200
+        ./opal.py predict out_dir/2model data/A1/test -r
+        ./opal.py eval data/A1/test/A1.test.taxid out_dir/3predict/test.fragments-db.preds.taxid
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
