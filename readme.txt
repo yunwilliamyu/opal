@@ -5,7 +5,7 @@ Further information can be found at http://opal.csail.mit.edu/
 
 0. Requirments
     Python 2.7 (this code fails on Python 3)
-    Vowpal Wabbit >= 8.3.0
+    Vowpal Wabbit >= 8.3.0 (the command-line program must be installed)
     scikit-learn (sklearn)
     pandas
     scipy
@@ -36,7 +36,15 @@ util/
     fasta_functions.py: parse FASTA files
 
 2. Install and test:
-    bash SETUP.sh (just downloads some data files to play with)
+    If the dependencies aren't already installed:
+        On Ubuntu, run the following:
+        sudo apt-get install vowpal-wabbit ("vw" must be on the command line)
+        pip install sklearn pandas scipy
+    Note that the Python pip package "vowpalwabbit" doesn't actually build
+    the command line tool, so it will not work with Opal.
+
+    Then afterwards download some data files for the tests:
+        bash SETUP.sh (just downloads some data files to play with)
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
