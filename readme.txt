@@ -4,11 +4,12 @@ Metagenomic binning through low density hashing. Yunan Luo, Yun William Yu, Jian
 Further information can be found at http://opal.csail.mit.edu/
 
 0. Requirments
-    Python 2.7 (this code fails on Python 3)
     Vowpal Wabbit >= 8.3.0 (the command-line program must be installed)
-    scikit-learn (sklearn)
-    pandas
-    scipy
+
+    Python 2.7 (this code fails on Python 3)
+    Python packages:
+        sklearn
+        pandas
 
     This code has been tested on Ubuntu 14.04 and 16.04, running
     under Bash 4.3.11.
@@ -36,15 +37,14 @@ util/
     fasta_functions.py: parse FASTA files
 
 2. Install and test:
-    If the dependencies aren't already installed:
-        On Ubuntu, run the following:
-        sudo apt-get install vowpal-wabbit ("vw" must be on the command line)
-        pip install sklearn pandas scipy
-    Note that the Python pip package "vowpalwabbit" doesn't actually build
-    the command line tool, so it will not work with Opal.
+    The setup script will test your environment for dependencies and download some example data files to play with.
+    It will fail when it does not find a required dependency, and give instructions for how to install them.
+        bash SETUP.sh
 
-    Then afterwards download some data files for the tests:
-        bash SETUP.sh (just downloads some data files to play with)
+    Alternately, you may simply ensure that all dependencies are installed in advance. On Ubuntu, you can do:
+        sudo apt-get install vowpal-wabbit python-pip
+        pip install pandas, sklearn
+    Note that you must install the command-line version of vowpal-wabbit, as Opal depends on the "vw" command.
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
