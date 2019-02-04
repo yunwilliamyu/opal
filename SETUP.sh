@@ -96,7 +96,13 @@ echo Test out Opal on the exmaple data with:
 echo ./opal.py simulate data/A1/test data/A1/train out_dir -c0.1 -r
 
 totalk=$(awk '/^MemTotal:/{print $2}' /proc/meminfo)
-if [ "$totalk" -lt 33550000 ]; then
+if [ "$?" -ne 0 ]; then
+    echo ========================================
+    echo WARNING: Cannot access /proc/meminfo to check for system memory.
+    echo Opal\'s default parameters may not work with less than 32 GiB of RAM.
+    echo Opal is also not guaranteed to be compatible with non-Linux OSes. YMMV
+    echo ========================================
+elif [ "$totalk" -lt 33550000 ]; then
     echo ========================================
     echo WARNING: System has less than 32 GiB of RAM.
     echo Opal may run out of memory for the model using standard parameters.
