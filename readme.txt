@@ -133,7 +133,8 @@ util/
     Also, the training process can be extremely slow, and can take many hours.
     On our test machine, the above pipeline takes around 4 hours to complete.
     This is of course why we provide the much faster commands above for playing
-    with the code.
+    with the code. However, once trained on a set of genomes, classification is
+    relatively fast, and in line with the speed of other metagenomic binners.
 
 3. Usage: opal.py assumes it lives in the current directory structure, but can be symlinked elsewhere.
 
