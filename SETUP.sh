@@ -94,3 +94,11 @@ echo ========================================
 echo Installation complete!
 echo Test out Opal on the exmaple data with:
 echo ./opal.py simulate data/A1/test data/A1/train out_dir
+
+totalk=$(awk '/^MemTotal:/{print $2}' /proc/meminfo)
+if [ "$totalk" -lt 3355000 ]; then
+    echo ========================================
+    echo WARNING: System has less than 32 GiB of RAM.
+    echo Opal may run out of memory for the model using standard parameters.
+    echo ========================================
+fi
