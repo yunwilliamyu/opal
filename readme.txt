@@ -40,22 +40,22 @@ util/
     First download and expand Opal to a working directory:
         git clone https://github.com/yunwilliamyu/opal.git
         cd opal
+        bash SETUP.sh
 
-    You must ensure that all dependencies are installed. On Ubuntu, you can do:
+    The provided setup script will test your environment for dependencies and
+    download some example data files to play with. It will fail when it does
+    not find a required dependency, and attempt to give instructions for how to
+    install them. On Ubuntu, the following should install all needed
+    dependencies:
         sudo apt-get install vowpal-wabbit python-pip
         pip install pandas, sklearn
-    Note that you must install the command-line version of vowpal-wabbit, as Opal depends on the "vw" command.
-
-    Altenrately, the provided  setup script will test your environment for
-    dependencies and download some example data files to play with.
-    It will fail when it does not find a required dependency, and give
-    instructions for how to install them.
-        bash SETUP.sh
+    Note that you must install the command-line version of vowpal-wabbit, as
+    Opal depends on the "vw" command.
 
     To test Opal after setup if you downloaded the example data files using SETUP.sh:
         ./opal.py simulate data/A1/test data/A1/train out_dir -r
     Note that this may take a very long time to train, so you may change the coverage
-    to have a quicker (but horrendously inaccurate test of the pipeline as follows):
+    to have a quicker (but horrendously inaccurate) test of the pipeline as follows:
         ./opal.py simulate data/A1/test data/A1/train out_dir -r -c0.1
 
     For context, the coverage parameter -c is the most important one,
@@ -96,7 +96,7 @@ util/
 
     Note that we fragment the testing data because for the simulation, we
     accept fasta files consisting of entire genomes, so we must fragment it in
-    order to get test reads. If you are evaluating the Fasta files from an NGS
+    order to get test reads. If you are classifying the Fasta files from an NGS
     pipeline, or benchmarking against a real dataset, you will probably want to
     follow the following pipeline. To duplicate the experiment we ran for Opal
     in Figure 3 of our paper on the A1 dataset, you'll want to do the following:
