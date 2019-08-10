@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Runs the Opal LDPC k-mer hash based metagenomic classifier. Based off the paper
 "Low-density locality-sensitive hashing boosts metagenomic binning" by Yunan
@@ -21,14 +21,13 @@ we have included a copy of under util/ext/ for ease of installation.
 This pipeline depends on Python scikit-learn and on Vowpal Wabbit. Vowpal
 Wabbit must be properly installed in the system path.
 '''
-from __future__ import print_function
-__version__ = "0.9.1"
+__version__ = "1.0.0"
 
 import argparse
 import os
 import sys
-if sys.version_info[0] == 3:
-    raise Exception("Python 3 is not compatible; please use Python 2.")
+if sys.version_info[0] == 2:
+    raise Exception("Python 2 is not compatible; please use Python 3.")
 import glob
 import subprocess
 import random
@@ -365,7 +364,7 @@ taxids input:   {taxids}
         print("Sending data to vowpal_wabbit ...")
         batch_i = 0
         for item in training_list:
-            vwps.stdin.write("{}\n".format(item))
+            vwps.stdin.write("{}\n".format(item).encode())
             batch_i = batch_i + 1
             if batch_i % 100000 == 0:
                 latest_data = vwps_log_fh_tail.read()
@@ -467,7 +466,7 @@ reverse-complements: {reverse}
     skms = fasta2skm.main_generator(fasta2skm_namespace)
     batch_i = 0
     for item in skms:
-        vwps.stdin.write("{}".format(item))
+        vwps.stdin.write("{}".format(item).encode())
         batch_i = batch_i + 1
         if batch_i % 100000 == 0:
             latest_data = vwps_log_fh_tail.read()

@@ -6,8 +6,9 @@ Further information can be found at http://opal.csail.mit.edu/
 0. Requirments
     Vowpal Wabbit >= 8.1.1 (the command-line program must be installed)
 
-    Python 2.7 (this code fails on Python 3)
+    Python 3.6 (Python 2 is about to be deprecated)
     Python packages:
+        wheel
         sklearn
         pandas
 
@@ -47,8 +48,8 @@ util/
     not find a required dependency, and attempt to give instructions for how to
     install them. On Ubuntu, the following should install all needed
     dependencies:
-        sudo apt-get install vowpal-wabbit python-pip
-        pip install pandas, sklearn
+        sudo apt-get install vowpal-wabbit python3-pip
+        pip3 install wheel pandas sklearn
     Note that you must install the command-line version of vowpal-wabbit, as
     Opal depends on the "vw" command.
 
