@@ -63,12 +63,12 @@ fi
 echo ========================================
 echo Testing Python package dependencies:
 
-if ! [ -x "$(command -v python)" ]; then
+if ! [ -x "$(command -v python3)" ]; then
     echo "Python 3 must be installed. See your package manager for details."
     exit 1
 fi
 
-python -c "import pandas, sklearn"
+python3 -c "import pandas, sklearn"
 if [ "$?" -eq 1 ]; then
     echo "Python packages pandas and/or sklearn not found. Please install."
     echo "e.g. if using pip installer, use \"pip3 install wheel pandas sklearn\""
